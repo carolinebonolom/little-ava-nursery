@@ -1,0 +1,9 @@
+<svg width="320" height="120" viewBox="0 0 320 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="320" height="120" rx="24" fill="#FFF7F2"/>
+  <circle cx="54" cy="60" r="28" fill="#F4C38B"/>
+  <path d="M36 60C36 46.7452 46.7452 36 60 36C67.5 36 74.2 39.2 78.8 44.8C72.4 49.6 68 57.6 68 66.8C68 78 58.8 87.2 47.6 87.2C41.2 87.2 35.2 84.8 31.2 80.4C33.2 72.8 36 66.4 36 60Z" fill="#F59E0B"/>
+  <path d="M74 45C85.8 45 95.2 53.4 95.2 64.8C95.2 76.2 85.8 84.6 74 84.6C62.2 84.6 52.8 76.2 52.8 64.8C52.8 53.4 62.2 45 74 45Z" fill="#FBBF24" opacity="0.35"/>
+  <text x="102" y="52" fill="#4C2D1A" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="1">LITTLE AVA</text>
+  <text x="102" y="76" fill="#7C5A44" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" letter-spacing="2">NURSERY</text>
+  <text x="102" y="94" fill="#A97A5B" font-family="Segoe UI, Arial, sans-serif" font-size="10" font-weight="500">Where Little Minds Grow Big</text>
+</svg>

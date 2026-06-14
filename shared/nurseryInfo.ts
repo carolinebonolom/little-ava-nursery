@@ -9,7 +9,7 @@ export const NURSERY_INFO = {
   email: "info@littleavanursery.co.uk",
   website: "littleavanursery.co.uk",
   companyNumber: "17116408",
-  logo: "/manus-storage/little-ava-logo_21aeee25.png",
+  logo: "/logo.png",
   ageRange: "3 months to 5 years",
   capacity: "15-20 children",
   rooms: [
