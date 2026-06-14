@@ -1,4 +1,0 @@
-{
-  "buildCommand": "ln -s client/public public && cd client && npm install && npm run build",
-  "outputDirectory": "client/public"
-}
