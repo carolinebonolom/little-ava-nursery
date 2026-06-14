@@ -6,40 +6,40 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 
-// Public pages
-import AboutUs from "@/pages/AboutUs";
-import VisionValues from "@/pages/VisionValues";
-import Team from "@/pages/Team";
-import Rooms from "@/pages/Rooms";
-import Curriculum from "@/pages/Curriculum";
-import DailyRoutine from "@/pages/DailyRoutine";
-import MealsNutrition from "@/pages/MealsNutrition";
-import FeesFunding from "@/pages/FeesFunding";
-import OpeningHours from "@/pages/OpeningHours";
-import Admissions from "@/pages/Admissions";
-import WaitingList from "@/pages/WaitingList";
-import TermDates from "@/pages/TermDates";
-import Safeguarding from "@/pages/Safeguarding";
-import SEND from "@/pages/SEND";
-import News from "@/pages/News";
-import Gallery from "@/pages/Gallery";
-import Testimonials from "@/pages/Testimonials";
-import Careers from "@/pages/Careers";
-import Contact from "@/pages/Contact";
-import FAQ from "@/pages/FAQ";
-import BookVisit from "@/pages/BookVisit";
-import Policies from "@/pages/Policies";
-import PrivacyPolicy from "@/pages/PrivacyPolicy";
-import CookiePolicy from "@/pages/CookiePolicy";
-import Terms from "@/pages/Terms";
-import ParentPortal from "@/pages/ParentPortal";
-import AdmissionsForm from "@/pages/AdmissionsForm";
-import Unsubscribe from "@/pages/Unsubscribe";
+// Public pages - restoring the /public/ folder path
+import AboutUs from "./pages/public/AboutUs";
+import VisionValues from "./pages/public/VisionValues";
+import Team from "./pages/public/Team";
+import Rooms from "./pages/public/Rooms";
+import Curriculum from "./pages/public/Curriculum";
+import DailyRoutine from "./pages/public/DailyRoutine";
+import MealsNutrition from "./pages/public/MealsNutrition";
+import FeesFunding from "./pages/public/FeesFunding";
+import OpeningHours from "./pages/public/OpeningHours";
+import Admissions from "./pages/public/Admissions";
+import WaitingList from "./pages/public/WaitingList";
+import TermDates from "./pages/public/TermDates";
+import Safeguarding from "./pages/public/Safeguarding";
+import SEND from "./pages/public/SEND";
+import News from "./pages/public/News";
+import Gallery from "./pages/public/Gallery";
+import Testimonials from "./pages/public/Testimonials";
+import Careers from "./pages/public/Careers";
+import Contact from "./pages/public/Contact";
+import FAQ from "./pages/public/FAQ";
+import BookVisit from "./pages/public/BookVisit";
+import Policies from "./pages/public/Policies";
+import PrivacyPolicy from "./pages/public/PrivacyPolicy";
+import CookiePolicy from "./pages/public/CookiePolicy";
+import Terms from "./pages/public/Terms";
+import ParentPortal from "./pages/public/ParentPortal";
+import AdmissionsForm from "./pages/public/AdmissionsForm";
+import Unsubscribe from "./pages/public/Unsubscribe";
 
 // Dashboard pages
-import ParentDashboard from "@/pages/dashboard/ParentDashboard";
-import StaffDashboard from "@/pages/dashboard/StaffDashboard";
-import AdminDashboard from "@/pages/dashboard/AdminDashboard";
+import ParentDashboard from "./pages/dashboard/ParentDashboard";
+import StaffDashboard from "./pages/dashboard/StaffDashboard";
+import AdminDashboard from "./pages/dashboard/AdminDashboard";
 
 // Login pages
 import LoginSelection from "./pages/LoginSelection";
