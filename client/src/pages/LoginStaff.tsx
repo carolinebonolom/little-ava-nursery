@@ -46,6 +46,7 @@ export default function LoginStaff() {
             <CardTitle className="text-blue-900">Staff Room Login</CardTitle>
             <CardDescription>
               Enter your room login credentials to access the staff dashboard and log activities for children in your room.
+              Use the room name exactly as provided by management, and the password is mynursery.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -55,7 +56,7 @@ export default function LoginStaff() {
                 <Input
                   id="username"
                   type="text"
-                  placeholder="e.g. babyroom1"
+                  placeholder="Baby Room, Toddler Room, Pre-School Room, or School Readiness Room"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required

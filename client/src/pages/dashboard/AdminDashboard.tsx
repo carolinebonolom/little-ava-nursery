@@ -1537,7 +1537,7 @@ function SettingsTab() {
   const [emailPassword, setEmailPassword] = useState("");
   const [selectedRoom, setSelectedRoom] = useState<number | null>(null);
   const [roomUsername, setRoomUsername] = useState("");
-  const [roomPassword, setRoomPassword] = useState("test1");
+  const [roomPassword, setRoomPassword] = useState("mynursery");
   const utils = trpc.useUtils();
 
   const { data: roomsList } = trpc.children.rooms.useQuery();
@@ -1655,7 +1655,7 @@ function SettingsTab() {
                 </select>
               </div>
               <div><Label>Username *</Label><Input value={roomUsername} onChange={(e) => setRoomUsername(e.target.value)} placeholder="e.g. babyroom1" required /></div>
-              <div><Label>Password *</Label><Input type="password" value={roomPassword} onChange={(e) => setRoomPassword(e.target.value)} placeholder="Default: test1" required /></div>
+              <div><Label>Password *</Label><Input type="password" value={roomPassword} onChange={(e) => setRoomPassword(e.target.value)} placeholder="Default: mynursery" required /></div>
             </div>
             <p className="text-xs text-muted-foreground">If this room already has a login, it will be updated with the new credentials.</p>
             <Button type="submit" disabled={createRoomLogin.isPending}>{createRoomLogin.isPending ? "Saving..." : "Save Room Login"}</Button>

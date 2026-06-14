@@ -56,7 +56,7 @@ export default function LoginAdmin() {
               <Shield className="w-5 h-5" /> Management Login
             </CardTitle>
             <CardDescription>
-              Full access to nursery management, staff records, analytics, and settings
+              Full access to nursery management, staff records, analytics, and settings. Use the management email and password provided by the nursery.
             </CardDescription>
           </CardHeader>
           <CardContent>

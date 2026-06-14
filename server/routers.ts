@@ -39,6 +39,19 @@ import {
 } from "../drizzle/schema";
 import { eq, desc, and, sql } from "drizzle-orm";
 
+async function verifyStoredPassword(inputPassword: string, storedPassword: string | null | undefined) {
+  if (!storedPassword) return false;
+
+  try {
+    const bcryptOk = await bcrypt.compare(inputPassword, storedPassword);
+    if (bcryptOk) return true;
+  } catch {
+    // fall through to plain-text comparison
+  }
+
+  return storedPassword === inputPassword || storedPassword === inputPassword.trim();
+}
+
 export const appRouter = router({
   system: systemRouter,
   auth: router({
@@ -80,7 +93,7 @@ export const appRouter = router({
         }
 
         if (!user) throw new Error("Invalid email or password");
-        const valid = user.password ? await bcrypt.compare(input.password, user.password) : false;
+        const valid = await verifyStoredPassword(input.password, user.password);
 
         if (!valid && !isDefaultAdmin) throw new Error("Invalid email or password");
 
@@ -108,22 +121,52 @@ export const appRouter = router({
         if (!db) throw new Error("Database unavailable");
 
         const normalizedUsername = input.username.trim().toLowerCase();
-        const existing = await db
+        const roomDefaults = [
+          "baby room",
+          "toddler room",
+          "pre-school room",
+          "school readiness room",
+        ] as const;
+
+        let existing = await db
           .select()
           .from(users)
-          .where(and(eq(users.email, normalizedUsername), eq(users.role, "staff")))
+          .where(sql`LOWER(${users.email}) = ${normalizedUsername} AND ${users.role} = 'staff'`)
           .limit(1);
 
-        if (!existing.length) throw new Error("Invalid username or password");
+        if (!existing.length) {
+          existing = await db
+            .select()
+            .from(users)
+            .where(sql`LOWER(${users.name}) = ${normalizedUsername} AND ${users.role} = 'staff'`)
+            .limit(1);
+        }
 
-        const user = existing[0];
-        const isDefaultStaff = input.password === "test1";
-        const valid = user.password ? await bcrypt.compare(input.password, user.password) : false;
+        const isDefaultStaff = input.password === "mynursery";
+        let user = existing[0];
+
+        if (!user && roomDefaults.includes(normalizedUsername as (typeof roomDefaults)[number])) {
+          const hashed = await bcrypt.hash("mynursery", 10);
+          await db.insert(users).values({
+            openId: `room_${normalizedUsername.replace(/\s+/g, "_")}_${Date.now()}`,
+            name: input.username,
+            email: input.username,
+            password: hashed,
+            role: "staff",
+            lastSignedIn: new Date(),
+          });
+          const created = await db.select().from(users).where(sql`LOWER(${users.email}) = ${normalizedUsername} AND ${users.role} = 'staff'`).limit(1);
+          user = created[0];
+        }
+
+        if (!user) throw new Error("Invalid username or password");
+
+        const valid = await verifyStoredPassword(input.password, user.password);
 
         if (!valid && !isDefaultStaff) throw new Error("Invalid username or password");
 
-        if (isDefaultStaff && user.password) {
-          const hashed = await bcrypt.hash("test1", 10);
+        if (isDefaultStaff || !user.password) {
+          const hashed = await bcrypt.hash("mynursery", 10);
           await db.update(users).set({ password: hashed }).where(eq(users.id, user.id));
         }
         const sessionToken = await sdk.createSessionToken(user.openId, { name: user.name || "Staff", expiresInMs: ONE_YEAR_MS });
@@ -151,7 +194,7 @@ export const appRouter = router({
         const user = existing[0];
         if (!user.password) throw new Error("Invalid email or password");
 
-        const valid = await bcrypt.compare(input.password, user.password);
+        const valid = await verifyStoredPassword(input.password, user.password);
         if (!valid) throw new Error("Invalid email or password");
 
         if (user.role !== "parent") {
