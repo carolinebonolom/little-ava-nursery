@@ -91,16 +91,31 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         const db = await getDb();
         if (!db) throw new Error("Database unavailable");
-        const existing = await db.select().from(users).where(and(eq(users.email, input.email), eq(users.role, "parent"))).limit(1);
+
+        const normalizedEmail = input.email.trim().toLowerCase();
+        const existing = await db
+          .select()
+          .from(users)
+          .where(and(eq(users.email, normalizedEmail), sql`${users.role} IN ('parent', 'user')`))
+          .limit(1);
+
         if (!existing.length) throw new Error("Invalid email or password");
+
         const user = existing[0];
         if (!user.password) throw new Error("Invalid email or password");
+
         const valid = await bcrypt.compare(input.password, user.password);
         if (!valid) throw new Error("Invalid email or password");
+
+        if (user.role !== "parent") {
+          await db.update(users).set({ role: "parent" }).where(eq(users.id, user.id));
+        }
+
         const sessionToken = await sdk.createSessionToken(user.openId, { name: user.name || "Parent", expiresInMs: ONE_YEAR_MS });
         const cookieOptions = getSessionCookieOptions(ctx.req);
         ctx.res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
         await db.update(users).set({ lastSignedIn: new Date() }).where(eq(users.id, user.id));
+
         return { success: true };
       }),
     parentSignUp: publicProcedure
