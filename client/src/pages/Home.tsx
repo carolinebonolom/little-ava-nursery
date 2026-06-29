@@ -52,18 +52,16 @@ const features = [
 const highlights = [
   "Opening April 2028",
   "Ages 3 months to 5 years",
-  "Full day care, 6:30am – 6:00pm",
+  "Full day care, 6:30am - 6:00pm",
   "Freshly prepared meals",
   "Outdoor learning and play",
   "Government funded places accepted",
-  "Parent communication app",
   "Caring, qualified team",
 ];
 
 export default function Home() {
   return (
     <PublicLayout>
-      {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[oklch(0.97_0.02_200)] via-white to-[oklch(0.97_0.02_150)]">
         <div className="container py-16 md:py-24 lg:py-32">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -99,14 +97,14 @@ export default function Home() {
               </div>
             </div>
             <div className="relative hidden lg:block">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl max-w-sm mx-auto">
                 <img
                   src={NURSERY_INFO.logo}
                   alt={NURSERY_INFO.name}
-                  className="w-full h-auto bg-white p-12"
+                  className="w-full h-auto bg-white p-10"
                 />
               </div>
-              <div className="mt-4 rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-white">
+              <div className="mt-4 rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-white max-w-md mx-auto">
                 <img
                   src="/hero-image.png"
                   alt="Little Ava Nursery illustration"
@@ -129,7 +127,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="section-padding bg-white">
         <div className="container">
           <div className="text-center max-w-2xl mx-auto mb-12">
@@ -156,7 +153,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Rooms Preview */}
       <section className="section-padding bg-[oklch(0.97_0.01_200)]">
         <div className="container">
           <div className="text-center max-w-2xl mx-auto mb-12">
@@ -188,7 +184,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="section-padding bg-primary text-white">
         <div className="container text-center">
           <h2 className="heading-2 text-white">Ready to Join Our Family?</h2>
@@ -201,38 +196,6 @@ export default function Home() {
             </Button>
             <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild>
               <Link href="/waiting-list">Join Waiting List</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Parent Portal Promo */}
-      <section className="section-padding bg-white">
-        <div className="container">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="heading-2 text-foreground">Stay Connected with Your Child's Day</h2>
-            <p className="body-large text-muted-foreground mt-4">
-              Our Parent Portal keeps you updated in real-time with your child's activities, meals, naps, and milestones throughout the day.
-            </p>
-            <ul className="space-y-3 mt-6 text-left max-w-md mx-auto">
-              {[
-                "Real-time activity updates and notifications",
-                "View meals, nappy changes, and nap times",
-                "Book sessions and report absences online",
-                "Access important documents",
-                "Secure access to your child's information",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm">
-                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-            <Button className="mt-8" size="lg" asChild>
-              <Link href="/parent-portal">
-                Access Parent Portal
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
             </Button>
           </div>
         </div>

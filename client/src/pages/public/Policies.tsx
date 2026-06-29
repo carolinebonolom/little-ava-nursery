@@ -178,41 +178,6 @@ We are an equal opportunities employer and welcome applications from all section
 Last reviewed: June 2026
 Next review: June 2027`,
 
-  "SEND Policy": `LITTLE AVA NURSERY
-SPECIAL EDUCATIONAL NEEDS & DISABILITIES (SEND) POLICY
-
-Company Registration: 17116408 | Location: West Midlands, England
-
-1. POLICY STATEMENT
-Little Ava Nursery is committed to the inclusion of all children. We provide an environment where children with special educational needs and/or disabilities are supported to achieve their full potential.
-
-2. DEFINITION
-A child has SEND if they have a learning difficulty or disability that calls for special educational provision to be made for them.
-
-3. OUR APPROACH
-- Early identification through ongoing observation and assessment
-- Partnership with parents as first educators
-- Graduated approach: Assess, Plan, Do, Review
-- Working with external agencies when appropriate
-- Individual Education Plans (IEPs) where needed
-
-4. SENCO RESPONSIBILITIES
-Our Special Educational Needs Coordinator (SENCO) is responsible for:
-- Coordinating support for children with SEND
-- Liaising with parents and external professionals
-- Maintaining SEND records
-- Supporting staff with strategies and training
-- Ensuring smooth transitions
-
-5. PARTNERSHIP WITH PARENTS
-We work closely with parents to:
-- Share observations and concerns
-- Develop and review support plans
-- Celebrate achievements and progress
-- Signpost to additional support services
-
-Last reviewed: June 2026
-Next review: June 2027`,
 
   "Complaints Procedure": `LITTLE AVA NURSERY
 COMPLAINTS PROCEDURE
@@ -743,7 +708,7 @@ Company Registration: 17116408 | Location: West Midlands, England
 We believe that parents are children's first and most important educators. We actively encourage parental involvement in all aspects of nursery life.
 
 2. COMMUNICATION
-- Daily updates via our parent portal app
+- Daily updates via our website and direct nursery communication
 - Regular newsletters
 - Notice boards and displays
 - Open-door policy for discussions
@@ -780,7 +745,6 @@ const policies = [
   { name: "Health & Safety Policy", category: "Health & Safety", link: null },
   { name: "Behaviour Management Policy", category: "Behaviour", link: null },
   { name: "Equal Opportunities & Inclusion Policy", category: "Inclusion", link: null },
-  { name: "SEND Policy", category: "SEND", link: "/send" },
   { name: "Complaints Procedure", category: "Complaints", link: null },
   { name: "Data Protection & Privacy Policy", category: "Data", link: "/privacy-policy" },
   { name: "Medication Administration Policy", category: "Health & Safety", link: null },

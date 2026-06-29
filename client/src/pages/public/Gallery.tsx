@@ -17,7 +17,7 @@ export default function Gallery() {
             <Camera className="h-12 w-12 text-primary mx-auto mb-4" />
             <h3 className="font-semibold text-lg mb-2">Gallery Coming Soon</h3>
             <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              Photos of our nursery environment, activities, and events will be shared here once we open. Parents will also have access to private photos of their children through the Parent Portal.
+              Photos of our nursery environment, activities, and events will be shared here once we open. Families can contact us for the latest updates and images.
             </p>
           </div>
         </div>

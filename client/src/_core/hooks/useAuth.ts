@@ -1,84 +1,80 @@
-import { getLoginUrl } from "@/const";
-import { trpc } from "@/lib/trpc";
-import { TRPCClientError } from "@trpc/client";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 
-type UseAuthOptions = {
-  redirectOnUnauthenticated?: boolean;
-  redirectPath?: string;
+type Role = "admin" | "staff" | "parent";
+
+type AuthUser = {
+  id: number;
+  username: string;
+  role: Role;
+  email?: string;
 };
 
-export function useAuth(options?: UseAuthOptions) {
-  const { redirectOnUnauthenticated = false, redirectPath = getLoginUrl() } =
-    options ?? {};
-  const utils = trpc.useUtils();
+const AUTH_KEY = "little_ava_auth";
 
-  const meQuery = trpc.auth.me.useQuery(undefined, {
-    retry: false,
-    refetchOnWindowFocus: false,
-  });
+function readStoredUser(): AuthUser | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(AUTH_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as AuthUser;
+  } catch {
+    return null;
+  }
+}
 
-  const logoutMutation = trpc.auth.logout.useMutation({
-    onSuccess: () => {
-      utils.auth.me.setData(undefined, null);
-    },
-  });
+export function useAuth() {
+  const [user, setUser] = useState<AuthUser | null>(() => readStoredUser());
+
+  const login = useCallback(async (
+    credentialsOrUsername: string | { username?: string; password?: string },
+    maybePassword?: string,
+  ) => {
+    const username =
+      typeof credentialsOrUsername === "string"
+        ? credentialsOrUsername
+        : credentialsOrUsername?.username || "";
+    const password =
+      typeof credentialsOrUsername === "string"
+        ? maybePassword || ""
+        : credentialsOrUsername?.password || "";
+
+    if (username !== "admin" || password !== "password") {
+      throw new Error("Invalid username or password");
+    }
+
+    const nextUser: AuthUser = {
+      id: 1,
+      username: "admin",
+      role: "admin",
+      email: "admin@littleavanursery.co.uk",
+    };
+
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(AUTH_KEY, JSON.stringify(nextUser));
+    }
+
+    setUser(nextUser);
+    return nextUser;
+  }, []);
 
   const logout = useCallback(async () => {
-    try {
-      await logoutMutation.mutateAsync();
-    } catch (error: unknown) {
-      if (
-        error instanceof TRPCClientError &&
-        error.data?.code === "UNAUTHORIZED"
-      ) {
-        return;
-      }
-      throw error;
-    } finally {
-      utils.auth.me.setData(undefined, null);
-      await utils.auth.me.invalidate();
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem(AUTH_KEY);
     }
-  }, [logoutMutation, utils]);
+    setUser(null);
+  }, []);
 
-  const state = useMemo(() => {
-    localStorage.setItem(
-      "manus-runtime-user-info",
-      JSON.stringify(meQuery.data)
-    );
-    return {
-      user: meQuery.data ?? null,
-      loading: meQuery.isLoading || logoutMutation.isPending,
-      error: meQuery.error ?? logoutMutation.error ?? null,
-      isAuthenticated: Boolean(meQuery.data),
-    };
-  }, [
-    meQuery.data,
-    meQuery.error,
-    meQuery.isLoading,
-    logoutMutation.error,
-    logoutMutation.isPending,
-  ]);
-
-  useEffect(() => {
-    if (!redirectOnUnauthenticated) return;
-    if (meQuery.isLoading || logoutMutation.isPending) return;
-    if (state.user) return;
-    if (typeof window === "undefined") return;
-    if (window.location.pathname === redirectPath) return;
-
-    window.location.href = redirectPath
-  }, [
-    redirectOnUnauthenticated,
-    redirectPath,
-    logoutMutation.isPending,
-    meQuery.isLoading,
-    state.user,
-  ]);
-
-  return {
-    ...state,
-    refresh: () => meQuery.refetch(),
-    logout,
-  };
+  return useMemo(
+    () => ({
+      user,
+      isAuthenticated: !!user,
+      loading: false,
+      error: null as Error | null,
+      login,
+      logout,
+    }),
+    [user, login, logout],
+  );
 }
+
+export default useAuth;

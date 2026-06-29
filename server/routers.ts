@@ -61,48 +61,48 @@ export const appRouter = router({
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
       return { success: true } as const;
     }),
-    // Admin/Management login with email + password
+    // Admin/Management login with username + password
     adminLogin: publicProcedure
-      .input(z.object({ email: z.string().email(), password: z.string().min(1) }))
+      .input(z.object({ username: z.string().min(1), password: z.string().min(1) }))
       .mutation(async ({ input, ctx }) => {
         const db = await getDb();
         if (!db) throw new Error("Database unavailable");
 
-        const normalizedEmail = input.email.trim().toLowerCase();
+        const normalizedUsername = input.username.trim().toLowerCase();
         const existing = await db
           .select()
           .from(users)
-          .where(and(eq(users.email, normalizedEmail), sql`${users.role} IN ('admin', 'user')`))
+          .where(and(sql`${users.role} IN ('admin', 'user')`, sql`LOWER(${users.email}) = ${normalizedUsername}`))
           .limit(1);
 
-        const isDefaultAdmin = normalizedEmail === "mendy_caroline@yahoo.com" && input.password === "admin";
+        const isDefaultAdmin = normalizedUsername === "admin" && input.password === "password";
         let user = existing[0];
 
         if (!user && isDefaultAdmin) {
-          const hashed = await bcrypt.hash("admin", 10);
+          const hashed = await bcrypt.hash("password", 10);
           await db.insert(users).values({
             openId: `admin_default_${Date.now()}`,
             name: "Management",
-            email: normalizedEmail,
+            email: normalizedUsername,
             password: hashed,
             role: "admin",
             lastSignedIn: new Date(),
           });
-          const created = await db.select().from(users).where(eq(users.email, normalizedEmail)).limit(1);
+          const created = await db.select().from(users).where(eq(users.email, normalizedUsername)).limit(1);
           user = created[0];
         }
 
-        if (!user) throw new Error("Invalid email or password");
+        if (!user) throw new Error("Invalid username or password");
         const valid = await verifyStoredPassword(input.password, user.password);
 
-        if (!valid && !isDefaultAdmin) throw new Error("Invalid email or password");
+        if (!valid && !isDefaultAdmin) throw new Error("Invalid username or password");
 
         if (user.role !== "admin") {
           await db.update(users).set({ role: "admin" }).where(eq(users.id, user.id));
         }
 
         if (isDefaultAdmin) {
-          const hashed = await bcrypt.hash("admin", 10);
+          const hashed = await bcrypt.hash("password", 10);
           await db.update(users).set({ password: hashed }).where(eq(users.id, user.id));
         }
 
