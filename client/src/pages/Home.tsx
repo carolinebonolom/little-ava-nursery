@@ -10,8 +10,7 @@ import {
   Users,
   Star,
   Clock,
-  Baby,
-  GraduationCap,
+  Calendar,
   ArrowRight,
   CheckCircle2,
 } from "lucide-react";
@@ -56,6 +55,7 @@ const highlights = [
   "Freshly prepared meals",
   "Outdoor learning and play",
   "Government funded places accepted",
+  "Warm, safe environment",
   "Caring, qualified team",
 ];
 
@@ -63,65 +63,75 @@ export default function Home() {
   return (
     <PublicLayout>
       <section className="relative overflow-hidden bg-gradient-to-br from-[oklch(0.97_0.02_200)] via-white to-[oklch(0.97_0.02_150)]">
-        <div className="container py-16 md:py-24 lg:py-32">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
-                <Baby className="h-4 w-4" />
-                Opening April 2028
-              </div>
-              <h1 className="heading-1 text-foreground">
-                A New Place for Little Minds to <span className="text-primary">Grow</span>
-              </h1>
-              <p className="body-large text-muted-foreground max-w-lg">
-                Little Ava Nursery is preparing to open in the West Midlands in April 2028. We are creating a warm, safe and inspiring environment where children aged 3 months to 5 years will learn, play and thrive every day.
-              </p>
-              <div className="flex flex-wrap gap-3 pt-2">
-                <Button size="lg" asChild>
-                  <Link href="/waiting-list">
-                    Join Our Waiting List
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <Link href="/vision-values">Our Vision</Link>
-                </Button>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-4">
-                {highlights.map((item) => (
-                  <div key={item} className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />
-                    <span>{item}</span>
+        <div className="container py-10 md:py-12 lg:py-14">
+          <div className="rounded-3xl border border-slate-200/80 bg-white/95 p-5 md:p-7 shadow-sm">
+            <div className="grid lg:grid-cols-2 gap-8 items-center">
+              <div className="space-y-5">
+                <div className="inline-flex items-center gap-3 rounded-2xl bg-[oklch(0.96_0.02_190)] px-4 py-3 text-primary">
+                  <Calendar className="h-5 w-5" />
+                  <div className="leading-tight">
+                    <p className="text-[1.7rem] font-semibold">Opening April 2028</p>
+                    <p className="text-[1.55rem] text-foreground/85">Join Our Waiting List</p>
                   </div>
-                ))}
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </div>
+
+                <h1 className="heading-1 text-foreground leading-tight">
+                  A New Place for
+                  <br />
+                  Little Minds to <span className="text-primary">Grow</span>
+                </h1>
+
+                <p className="body-large text-muted-foreground max-w-xl">
+                  Little Ava Nursery is preparing to open in the West Midlands in April 2028. We are creating a warm, safe and inspiring environment where children aged 3 months to 5 years will learn, play and thrive every day.
+                </p>
+                <p className="body-large text-muted-foreground max-w-xl">
+                  Register your interest today to join our waiting list and receive updates as we prepare to welcome our first families.
+                </p>
+
+                <div className="flex flex-wrap gap-3 pt-1">
+                  <Button size="lg" asChild>
+                    <Link href="/waiting-list">
+                      Join the Waiting List
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button size="lg" variant="outline" asChild>
+                    <Link href="/vision-values">Our Vision</Link>
+                  </Button>
+                </div>
               </div>
-            </div>
-            <div className="relative hidden lg:block">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl max-w-sm mx-auto">
+
+              <div className="rounded-2xl bg-white p-4 md:p-6">
                 <img
                   src={NURSERY_INFO.logo}
                   alt={NURSERY_INFO.name}
-                  className="w-full h-auto bg-white p-10"
+                  className="w-full h-auto object-contain"
                 />
               </div>
-              <div className="mt-4 rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-white max-w-md mx-auto">
-                <img
-                  src="/hero-image.png"
-                  alt="Little Ava Nursery illustration"
-                  className="w-full h-auto"
-                />
-              </div>
-              <div className="absolute -bottom-4 -left-4 bg-white rounded-xl shadow-lg p-4 border">
-                <div className="flex items-center gap-2">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <GraduationCap className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold">EYFS Curriculum</p>
-                    <p className="text-xs text-muted-foreground">Play-based learning</p>
-                  </div>
+            </div>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-6">
+              {highlights.map((item) => (
+                <div key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                  <span>{item}</span>
                 </div>
+              ))}
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-slate-200 bg-[oklch(0.98_0.01_190)] p-5 md:p-6 grid md:grid-cols-[1fr_auto] items-center gap-5">
+              <div>
+                <h3 className="text-2xl font-semibold text-primary">Welcome to Little Ava Nursery</h3>
+                <p className="mt-3 text-muted-foreground leading-relaxed">
+                  We are excited to bring a new nursery to the West Midlands where every child is encouraged to learn with confidence, curiosity and kindness. Although our doors will open in April 2028, our waiting list is now open. Register early to receive updates on our progress, opening events and enrolment opportunities.
+                </p>
               </div>
+              <img
+                src="/hero-image.png"
+                alt="Little Ava Nursery family icon"
+                className="w-full max-w-[180px] md:max-w-[220px] h-auto justify-self-center"
+              />
             </div>
           </div>
         </div>

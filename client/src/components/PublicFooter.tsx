@@ -11,10 +11,13 @@ const quickLinks = [
 ];
 
 const legalLinks = [
+  { href: "/policies", label: "Policies & Documents" },
+  { href: "/safeguarding", label: "Safeguarding" },
+  { href: "/term-dates", label: "Term Dates" },
+  { href: "/fees-funding", label: "Fees & Funding" },
   { href: "/privacy-policy", label: "Privacy Policy" },
   { href: "/cookie-policy", label: "Cookie Policy" },
   { href: "/terms", label: "Terms" },
-  { href: "/policies", label: "Policies" },
 ];
 
 export default function PublicFooter() {

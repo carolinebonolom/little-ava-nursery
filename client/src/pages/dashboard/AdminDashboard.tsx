@@ -1535,13 +1535,7 @@ function SettingsTab() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [emailPassword, setEmailPassword] = useState("");
-  const [selectedRoom, setSelectedRoom] = useState<number | null>(null);
-  const [roomUsername, setRoomUsername] = useState("");
-  const [roomPassword, setRoomPassword] = useState("mynursery");
   const utils = trpc.useUtils();
-
-  const { data: roomsList } = trpc.children.rooms.useQuery();
-  const { data: roomLogins } = trpc.admin.listRoomLogins.useQuery();
 
   const changePassword = trpc.auth.changePassword.useMutation({
     onSuccess: () => { toast.success("Password changed successfully!"); setCurrentPassword(""); setNewPassword(""); setConfirmPassword(""); },
@@ -1551,16 +1545,6 @@ function SettingsTab() {
   const changeEmail = trpc.auth.changeEmail.useMutation({
     onSuccess: () => { toast.success("Email changed successfully!"); setNewEmail(""); setEmailPassword(""); utils.auth.me.invalidate(); },
     onError: (e) => toast.error(e.message),
-  });
-
-  const createRoomLogin = trpc.admin.createRoomLogin.useMutation({
-    onSuccess: (data) => { toast.success(data.updated ? "Room login updated!" : "Room login created!"); setRoomUsername(""); setRoomPassword(""); setSelectedRoom(null); utils.admin.listRoomLogins.invalidate(); },
-    onError: (e: any) => toast.error(e.message),
-  });
-
-  const deleteRoomLogin = trpc.admin.deleteRoomLogin.useMutation({
-    onSuccess: () => { toast.success("Room login deleted"); utils.admin.listRoomLogins.invalidate(); },
-    onError: (e: any) => toast.error(e.message),
   });
 
   const handlePasswordChange = (e: React.FormEvent) => {
@@ -1574,13 +1558,6 @@ function SettingsTab() {
     e.preventDefault();
     if (!newEmail || !emailPassword) { toast.error("Please fill in all fields"); return; }
     changeEmail.mutate({ newEmail, password: emailPassword });
-  };
-
-  const handleCreateRoomLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedRoom || !roomUsername || !roomPassword) { toast.error("Please fill in all fields"); return; }
-    if (roomPassword.length < 4) { toast.error("Password must be at least 4 characters"); return; }
-    createRoomLogin.mutate({ roomId: selectedRoom, username: roomUsername, password: roomPassword });
   };
 
   return (
@@ -1611,54 +1588,6 @@ function SettingsTab() {
               <div><Label>Confirm New Password</Label><Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required /></div>
             </div>
             <Button type="submit" size="sm" disabled={changePassword.isPending}>{changePassword.isPending ? "Updating..." : "Change Password"}</Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      {/* Room Login Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Room Logins</CardTitle>
-          <p className="text-sm text-muted-foreground">Each room has one shared login. Staff in that room use these credentials to access the staff dashboard and log activities for children in their room.</p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Existing Room Logins */}
-          {roomLogins && roomLogins.length > 0 && (
-            <div className="space-y-2">
-              <h4 className="font-semibold text-sm">Current Room Logins</h4>
-              <div className="divide-y rounded-lg border">
-                {roomLogins.map((login) => {
-                  const room = roomsList?.find((r) => r.id === login.roomId);
-                  return (
-                    <div key={login.id} className="flex items-center justify-between p-3">
-                      <div>
-                        <p className="font-medium text-sm">{room?.name || `Room ${login.roomId}`}</p>
-                        <p className="text-xs text-muted-foreground">Username: <code className="bg-muted px-1 rounded">{login.email}</code></p>
-                      </div>
-                      <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700" onClick={() => deleteRoomLogin.mutate({ id: login.id })}>Remove</Button>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Create/Update Room Login */}
-          <form onSubmit={handleCreateRoomLogin} className="space-y-3 p-4 border rounded-lg">
-            <h4 className="font-semibold text-sm">Create / Update Room Login</h4>
-            <div className="grid sm:grid-cols-3 gap-3">
-              <div>
-                <Label>Room *</Label>
-                <select className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm" value={selectedRoom || ""} onChange={(e) => setSelectedRoom(Number(e.target.value))} required>
-                  <option value="">Select a room...</option>
-                  {roomsList?.map((room) => <option key={room.id} value={room.id}>{room.name}</option>)}
-                </select>
-              </div>
-              <div><Label>Username *</Label><Input value={roomUsername} onChange={(e) => setRoomUsername(e.target.value)} placeholder="e.g. babyroom1" required /></div>
-              <div><Label>Password *</Label><Input type="password" value={roomPassword} onChange={(e) => setRoomPassword(e.target.value)} placeholder="Default: mynursery" required /></div>
-            </div>
-            <p className="text-xs text-muted-foreground">If this room already has a login, it will be updated with the new credentials.</p>
-            <Button type="submit" disabled={createRoomLogin.isPending}>{createRoomLogin.isPending ? "Saving..." : "Save Room Login"}</Button>
           </form>
         </CardContent>
       </Card>

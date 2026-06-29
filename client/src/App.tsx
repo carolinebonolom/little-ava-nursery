@@ -70,6 +70,7 @@ function Router() {
       <Route path="/policies" component={Policies} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/cookie-policy" component={CookiePolicy} />
+      <Route path="/terms" component={Terms} />
       {/* Login pages */}
       <Route path="/login" component={LoginSelection} />
       <Route path="/login/admin" component={LoginAdmin} />

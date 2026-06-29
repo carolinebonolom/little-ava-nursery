@@ -10,6 +10,7 @@ const navLinks = [
   { href: "/curriculum", label: "Curriculum" },
   { href: "/admissions", label: "Admissions" },
   { href: "/waiting-list", label: "Waiting List" },
+  { href: "/policies", label: "Policies & Docs" },
   { href: "/contact", label: "Contact" },
   { href: "/login", label: "Management Login" },
 ];
