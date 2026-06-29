@@ -4,7 +4,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 
 const faqs = [
   { q: "What ages do you cater for?", a: "We welcome children from 3 months to 5 years of age, across four age-appropriate rooms." },
-  { q: "What are your opening hours?", a: "We are open Monday to Friday, 7:30am to 6:00pm, 51 weeks per year (closed between Christmas and New Year and on Bank Holidays)." },
+  { q: "What are your opening hours?", a: "We are open Monday to Friday, 6:30am to 6:00pm, 51 weeks per year (closed between Christmas and New Year and on Bank Holidays)." },
   { q: "Do you accept government-funded places?", a: "Yes, we accept all government-funded entitlements including 15 hours universal, 30 hours extended, and 2-year-old funding." },
   { q: "What qualifications do your staff hold?", a: "All our staff hold a minimum Level 3 qualification in Early Years Education and Care. Many hold higher qualifications including degrees and specialist certifications." },
   { q: "How do I register my child?", a: "You can start by booking a visit to see our nursery, then complete our registration form. If we're full, you can join our waiting list." },

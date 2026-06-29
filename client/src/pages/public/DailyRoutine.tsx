@@ -3,7 +3,7 @@ import PageHeader from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 
 const routine = [
-  { time: "7:30 - 8:30", activity: "Arrival & Free Play", description: "Children arrive and settle into their rooms with free play activities." },
+  { time: "6:30 - 8:30", activity: "Arrival & Free Play", description: "Children arrive and settle into their rooms with free play activities." },
   { time: "8:30 - 9:00", activity: "Breakfast", description: "A healthy breakfast is served for children who haven't eaten at home." },
   { time: "9:00 - 9:30", activity: "Circle Time", description: "Group time with songs, stories, and discussion of the day's activities." },
   { time: "9:30 - 11:00", activity: "Focused Learning", description: "Adult-led activities and child-initiated play across all learning areas." },

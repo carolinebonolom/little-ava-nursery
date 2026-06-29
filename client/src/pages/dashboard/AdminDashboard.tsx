@@ -19,7 +19,7 @@ import {
   Plus, UtensilsCrossed, Droplets, Moon, Activity, MessageSquare,
   Bell, Send, Newspaper, UserPlus, BarChart3, Shield, Pill,
   ClipboardList, DoorOpen, Flame, GraduationCap, FileSignature, BookOpen,
-  Star, Phone, Building2,
+  Star, Phone, Building2, Upload, Download, Printer, ExternalLink,
 } from "lucide-react";
 
 function LogActivityForm({ children: childList, onSuccess }: { children: { id: number; firstName: string; lastName: string }[]; onSuccess: () => void }) {
@@ -964,12 +964,23 @@ function DocumentsTab() {
   const { data: allUsers } = trpc.admin.listUsers.useQuery();
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ title: "", description: "", documentType: "" as any });
+  const [file, setFile] = useState<File | null>(null);
   const [sendDocId, setSendDocId] = useState<number | null>(null);
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [recipientFilter, setRecipientFilter] = useState<"all" | "parent" | "staff">("all");
   const utils = trpc.useUtils();
   const createDoc = trpc.documents.create.useMutation({
     onSuccess: () => { toast.success("Document created"); setShowCreate(false); setForm({ title: "", description: "", documentType: "" }); utils.documents.list.invalidate(); },
+    onError: (e) => toast.error(e.message),
+  });
+  const uploadDoc = trpc.documents.uploadFile.useMutation({
+    onSuccess: () => {
+      toast.success("Form uploaded successfully");
+      setShowCreate(false);
+      setFile(null);
+      setForm({ title: "", description: "", documentType: "" });
+      utils.documents.list.invalidate();
+    },
     onError: (e) => toast.error(e.message),
   });
   const sendForSigning = trpc.documents.sendForSigning.useMutation({
@@ -988,19 +999,58 @@ function DocumentsTab() {
     { value: "other", label: "Other" },
   ];
 
+  const toBase64 = (f: File) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result;
+        if (typeof result !== "string") {
+          reject(new Error("Invalid file content"));
+          return;
+        }
+        resolve(result.split(",")[1] || "");
+      };
+      reader.onerror = () => reject(new Error("Failed to read file"));
+      reader.readAsDataURL(f);
+    });
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (file) {
+      const fileBase64 = await toBase64(file);
+      uploadDoc.mutate({
+        title: form.title,
+        description: form.description || undefined,
+        documentType: form.documentType,
+        fileName: file.name,
+        contentType: file.type || "application/octet-stream",
+        fileBase64,
+      });
+      return;
+    }
+    createDoc.mutate(form);
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="flex items-center gap-2"><FileSignature className="h-5 w-5" /> Document Management</CardTitle>
-        <Button size="sm" onClick={() => setShowCreate(!showCreate)}><Plus className="h-4 w-4 mr-1" /> Create Document</Button>
+        <CardTitle className="flex items-center gap-2"><FileSignature className="h-5 w-5" /> Forms Library</CardTitle>
+        <Button size="sm" onClick={() => setShowCreate(!showCreate)}><Plus className="h-4 w-4 mr-1" /> Add Form</Button>
       </CardHeader>
       <CardContent>
         {showCreate && (
-          <form onSubmit={(e) => { e.preventDefault(); createDoc.mutate(form); }} className="space-y-3 mb-6 p-4 border rounded-lg bg-muted/30">
+          <form onSubmit={handleCreate} className="space-y-3 mb-6 p-4 border rounded-lg bg-muted/30">
             <div><Label>Title *</Label><Input value={form.title} onChange={(e) => setForm(p => ({ ...p, title: e.target.value }))} required placeholder="e.g. Photo Consent Form 2025" /></div>
             <div><Label>Description</Label><Textarea value={form.description} onChange={(e) => setForm(p => ({ ...p, description: e.target.value }))} placeholder="Brief description of the document..." /></div>
             <div><Label>Document Type *</Label><Select value={form.documentType} onValueChange={(v) => setForm(p => ({ ...p, documentType: v }))}><SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger><SelectContent>{docTypes.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent></Select></div>
-            <Button type="submit" disabled={createDoc.isPending}>{createDoc.isPending ? "Creating..." : "Create Document"}</Button>
+            <div>
+              <Label>Upload File (optional)</Label>
+              <Input type="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+              <p className="text-xs text-muted-foreground mt-1">Upload a form file to store, print, and download from the dashboard.</p>
+            </div>
+            <Button type="submit" disabled={createDoc.isPending || uploadDoc.isPending}>
+              {createDoc.isPending || uploadDoc.isPending ? "Saving..." : file ? "Upload Form" : "Create Document"}
+            </Button>
           </form>
         )}
 
@@ -1043,7 +1093,29 @@ function DocumentsTab() {
                   <p className="text-xs text-muted-foreground">{doc.documentType.replace(/_/g, " ")} | Created: {new Date(doc.createdAt).toLocaleDateString()}</p>
                   {doc.description && <p className="text-xs text-muted-foreground mt-1">{doc.description}</p>}
                 </div>
-                <Button size="sm" variant="outline" onClick={() => setSendDocId(doc.id)}><Send className="h-4 w-4 mr-1" /> Send</Button>
+                <div className="flex flex-wrap gap-2 justify-end">
+                  {doc.documentUrl && (
+                    <>
+                      <a href={doc.documentUrl} target="_blank" rel="noreferrer">
+                        <Button size="sm" variant="outline"><ExternalLink className="h-4 w-4 mr-1" /> View</Button>
+                      </a>
+                      <a href={doc.documentUrl} download>
+                        <Button size="sm" variant="outline"><Download className="h-4 w-4 mr-1" /> Download</Button>
+                      </a>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const win = window.open(doc.documentUrl || "", "_blank");
+                          if (win) win.focus();
+                        }}
+                      >
+                        <Printer className="h-4 w-4 mr-1" /> Print
+                      </Button>
+                    </>
+                  )}
+                  <Button size="sm" variant="outline" onClick={() => setSendDocId(doc.id)}><Send className="h-4 w-4 mr-1" /> Send</Button>
+                </div>
               </div>
             ))}
           </div>
@@ -1235,10 +1307,10 @@ function ShiftsTab() {
   const { data: shiftsList } = trpc.shifts.list.useQuery();
   const { data: staffList } = trpc.staff.list.useQuery();
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ staffId: "", date: "", startTime: "07:30", endTime: "18:00", notes: "" });
+  const [form, setForm] = useState({ staffId: "", date: "", startTime: "06:30", endTime: "18:00", notes: "" });
   const utils = trpc.useUtils();
   const create = trpc.shifts.create.useMutation({
-    onSuccess: () => { toast.success("Shift created"); setShowForm(false); setForm({ staffId: "", date: "", startTime: "07:30", endTime: "18:00", notes: "" }); utils.shifts.list.invalidate(); },
+    onSuccess: () => { toast.success("Shift created"); setShowForm(false); setForm({ staffId: "", date: "", startTime: "06:30", endTime: "18:00", notes: "" }); utils.shifts.list.invalidate(); },
     onError: (e) => toast.error(e.message),
   });
   const deleteShift = trpc.shifts.delete.useMutation({

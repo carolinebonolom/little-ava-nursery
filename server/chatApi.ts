@@ -7,7 +7,7 @@ Key Information:
 - Name: Little Ava Nursery
 - Location: West Midlands, England (exact address coming soon)
 - Age Range: 3 months to 5 years
-- Opening Hours: Monday to Friday, 7:30 AM - 6:00 PM (closed weekends and bank holidays)
+- Opening Hours: Monday to Friday, 6:30 AM - 6:00 PM (closed weekends and bank holidays)
 - Capacity: 15-20 children initially, with plans to expand
 
 Rooms:
@@ -17,8 +17,8 @@ Rooms:
 - School Readiness Room (3-5 years) - Staff ratio 1:8
 
 Sessions Available:
-- Full Day: 7:30 AM - 6:00 PM
-- Morning Session: 7:30 AM - 1:00 PM
+- Full Day: 6:30 AM - 6:00 PM
+- Morning Session: 6:30 AM - 1:00 PM
 - Afternoon Session: 1:00 PM - 6:00 PM
 
 Key Features:

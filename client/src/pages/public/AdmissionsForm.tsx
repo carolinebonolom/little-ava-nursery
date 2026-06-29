@@ -251,8 +251,8 @@ export default function AdmissionsForm() {
                   <Select value={formData.preferredSessions} onValueChange={(v) => update("preferredSessions", v)}>
                     <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="full_day">Full Day (7:30 AM - 6:00 PM)</SelectItem>
-                      <SelectItem value="morning">Morning (7:30 AM - 1:00 PM)</SelectItem>
+                      <SelectItem value="full_day">Full Day (6:30 AM - 6:00 PM)</SelectItem>
+                      <SelectItem value="morning">Morning (6:30 AM - 1:00 PM)</SelectItem>
                       <SelectItem value="afternoon">Afternoon (1:00 PM - 6:00 PM)</SelectItem>
                       <SelectItem value="flexible">Flexible / To discuss</SelectItem>
                     </SelectContent>

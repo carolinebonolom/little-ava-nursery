@@ -104,8 +104,8 @@ export default function WaitingList() {
                       <SelectValue placeholder="Select preferred sessions" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="full_day">Full Day (7:30am - 6:00pm)</SelectItem>
-                      <SelectItem value="morning">Morning (7:30am - 1:00pm)</SelectItem>
+                      <SelectItem value="full_day">Full Day (6:30am - 6:00pm)</SelectItem>
+                      <SelectItem value="morning">Morning (6:30am - 1:00pm)</SelectItem>
                       <SelectItem value="afternoon">Afternoon (1:00pm - 6:00pm)</SelectItem>
                       <SelectItem value="flexible">Flexible / Unsure</SelectItem>
                     </SelectContent>

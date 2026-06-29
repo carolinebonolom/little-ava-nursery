@@ -25,8 +25,8 @@ export default function FeesFunding() {
 
           <div className="grid sm:grid-cols-3 gap-6 mb-12">
             {[
-              { session: "Full Day", time: "7:30am - 6:00pm", price: "Contact us" },
-              { session: "Morning", time: "7:30am - 1:00pm", price: "Contact us" },
+              { session: "Full Day", time: "6:30am - 6:00pm", price: "Contact us" },
+              { session: "Morning", time: "6:30am - 1:00pm", price: "Contact us" },
               { session: "Afternoon", time: "1:00pm - 6:00pm", price: "Contact us" },
             ].map((item) => (
               <Card key={item.session} className="border-0 shadow-sm text-center">

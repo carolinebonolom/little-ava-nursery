@@ -43,13 +43,13 @@ export const NURSERY_INFO = {
     }
   ],
   openingHours: {
-    weekdays: "7:30 AM - 6:00 PM",
+    weekdays: "6:30 AM - 6:00 PM",
     saturday: "Closed",
     sunday: "Closed"
   },
   sessionTypes: [
-    { name: "Full Day", time: "7:30 AM - 6:00 PM" },
-    { name: "Morning Session", time: "7:30 AM - 1:00 PM" },
+    { name: "Full Day", time: "6:30 AM - 6:00 PM" },
+    { name: "Morning Session", time: "6:30 AM - 1:00 PM" },
     { name: "Afternoon Session", time: "1:00 PM - 6:00 PM" }
   ]
 } as const;

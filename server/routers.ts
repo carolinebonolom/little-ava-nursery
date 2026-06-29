@@ -1420,6 +1420,35 @@ export const appRouter = router({
         });
         return { success: true };
       }),
+    uploadFile: adminProcedure
+      .input(z.object({
+        title: z.string().min(1),
+        description: z.string().optional(),
+        documentType: z.enum(["consent_form", "contract", "policy", "medical_form", "photo_permission", "trip_permission", "employment", "other"]),
+        fileName: z.string().min(1),
+        fileBase64: z.string().min(1),
+        contentType: z.string().min(1),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database unavailable");
+
+        const { storagePut } = await import("./storage");
+        const safeFileName = input.fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const fileBuffer = Buffer.from(input.fileBase64, "base64");
+        const fileKey = `documents/${Date.now()}-${safeFileName}`;
+        const { url } = await storagePut(fileKey, fileBuffer, input.contentType);
+
+        await db.insert(documents).values({
+          title: input.title,
+          description: input.description || null,
+          documentType: input.documentType,
+          documentUrl: url,
+          createdBy: ctx.user.id,
+        });
+
+        return { success: true, url };
+      }),
     list: staffProcedure.query(async () => {
       const db = await getDb();
       if (!db) return [];
