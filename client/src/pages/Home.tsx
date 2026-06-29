@@ -50,12 +50,14 @@ const features = [
 ];
 
 const highlights = [
-  "3 months to 5 years",
-  "Open 7:30am - 6:00pm",
-  "Government funded places",
+  "Opening April 2028",
+  "Ages 3 months to 5 years",
+  "Full day care, 6:30am – 6:00pm",
   "Freshly prepared meals",
-  "Outdoor learning areas",
-  "Real-time parent updates",
+  "Outdoor learning and play",
+  "Government funded places accepted",
+  "Parent communication app",
+  "Caring, qualified team",
 ];
 
 export default function Home() {
@@ -68,24 +70,23 @@ export default function Home() {
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
                 <Baby className="h-4 w-4" />
-                Now accepting registrations
+                Opening April 2028
               </div>
               <h1 className="heading-1 text-foreground">
-                Where Little Minds{" "}
-                <span className="text-primary">Grow Big</span>
+                A New Place for Little Minds to <span className="text-primary">Grow</span>
               </h1>
               <p className="body-large text-muted-foreground max-w-lg">
-                A warm, nurturing nursery in the West Midlands where children aged 3 months to 5 years learn, play, and thrive through our carefully crafted curriculum.
+                Little Ava Nursery is preparing to open in the West Midlands in April 2028. We are creating a warm, safe and inspiring environment where children aged 3 months to 5 years will learn, play and thrive every day.
               </p>
               <div className="flex flex-wrap gap-3 pt-2">
                 <Button size="lg" asChild>
-                  <Link href="/book-visit">
-                    Book a Visit
+                  <Link href="/waiting-list">
+                    Join Our Waiting List
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                  <Link href="/admissions">Register Your Child</Link>
+                  <Link href="/vision-values">Our Vision</Link>
                 </Button>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-4">
@@ -103,6 +104,13 @@ export default function Home() {
                   src={NURSERY_INFO.logo}
                   alt={NURSERY_INFO.name}
                   className="w-full h-auto bg-white p-12"
+                />
+              </div>
+              <div className="mt-4 rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-white">
+                <img
+                  src="/hero-image.png"
+                  alt="Little Ava Nursery illustration"
+                  className="w-full h-auto"
                 />
               </div>
               <div className="absolute -bottom-4 -left-4 bg-white rounded-xl shadow-lg p-4 border">
