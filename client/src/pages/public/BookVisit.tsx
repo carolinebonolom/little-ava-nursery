@@ -7,17 +7,58 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
+import { NURSERY_INFO } from "@shared/nurseryInfo";
 import { toast } from "sonner";
 import { CheckCircle2 } from "lucide-react";
 
 export default function BookVisit() {
   const [submitted, setSubmitted] = useState(false);
-  const bookVisit = trpc.visits.book.useMutation({
-    onSuccess: () => { setSubmitted(true); toast.success("Visit booked!"); },
-    onError: (err: any) => toast.error(err.message),
-  });
+  const bookVisit = trpc.visits.book.useMutation();
 
   const [form, setForm] = useState({ parentName: "", parentEmail: "", parentPhone: "", childAge: "", preferredDate: "", preferredTime: "", message: "" });
+
+  const fallbackSubmit = async () => {
+    const response = await fetch(`https://formsubmit.co/ajax/${NURSERY_INFO.email}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        parentName: form.parentName,
+        parentEmail: form.parentEmail,
+        parentPhone: form.parentPhone || "",
+        childAge: form.childAge || "",
+        preferredDate: form.preferredDate || "",
+        preferredTime: form.preferredTime || "",
+        message: form.message || "",
+        _subject: `Little Ava Book Visit: ${form.parentName}`,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Unable to submit visit booking right now. Please try again shortly.");
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await bookVisit.mutateAsync(form);
+      setSubmitted(true);
+      toast.success("Visit booked!");
+      return;
+    } catch {
+      // Fallback for static deployments where API routes are unavailable.
+      try {
+        await fallbackSubmit();
+        setSubmitted(true);
+        toast.success("Visit booked!");
+      } catch (fallbackError: any) {
+        toast.error(fallbackError?.message || "Unable to submit visit booking right now.");
+      }
+    }
+  };
 
   if (submitted) {
     return (
@@ -46,7 +87,7 @@ export default function BookVisit() {
         <div className="container max-w-2xl">
           <Card className="border-0 shadow-sm">
             <CardContent className="p-6">
-              <form onSubmit={(e) => { e.preventDefault(); bookVisit.mutate(form); }} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="parentName">Your Name *</Label>
