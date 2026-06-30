@@ -953,7 +953,14 @@ function TrainingTab() {
           </div>
         )}
         {showForm && (
-          <form onSubmit={(e) => { e.preventDefault(); addTraining.mutate({ staffId: Number(form.staffId), trainingType: form.trainingType, title: form.title, provider: form.provider || undefined, completedDate: form.completedDate, expiryDate: form.expiryDate || undefined }); }} className="space-y-3 mb-6 p-4 border rounded-lg bg-muted/30">
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            if (!form.staffId || !form.trainingType) {
+              toast.error("Please select a staff member and training type");
+              return;
+            }
+            addTraining.mutate({ staffId: Number(form.staffId), trainingType: form.trainingType, title: form.title, provider: form.provider || undefined, completedDate: form.completedDate, expiryDate: form.expiryDate || undefined });
+          }} className="space-y-3 mb-6 p-4 border rounded-lg bg-muted/30">
             <div className="grid sm:grid-cols-2 gap-3">
               <div><Label>Staff Member *</Label><Select value={form.staffId} onValueChange={(v) => setForm(p => ({ ...p, staffId: v }))}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent>{(staffList || []).map((s: any) => <SelectItem key={s.id} value={String(s.id)}>{s.title || `Staff #${s.id}`}</SelectItem>)}</SelectContent></Select></div>
               <div><Label>Training Type *</Label><Select value={form.trainingType} onValueChange={(v) => setForm(p => ({ ...p, trainingType: v }))}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent>{trainingTypes.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent></Select></div>
@@ -1362,7 +1369,14 @@ function ShiftsTab() {
       </CardHeader>
       <CardContent>
         {showForm && (
-          <form onSubmit={(e) => { e.preventDefault(); create.mutate({ staffId: Number(form.staffId), date: form.date, startTime: form.startTime, endTime: form.endTime, notes: form.notes || undefined }); }} className="space-y-3 mb-6 p-4 border rounded-lg bg-muted/30">
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            if (!form.staffId) {
+              toast.error("Please select a staff member");
+              return;
+            }
+            create.mutate({ staffId: Number(form.staffId), date: form.date, startTime: form.startTime, endTime: form.endTime, notes: form.notes || undefined });
+          }} className="space-y-3 mb-6 p-4 border rounded-lg bg-muted/30">
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Staff Member *</Label><Select value={form.staffId} onValueChange={(v) => setForm(p => ({ ...p, staffId: v }))}><SelectTrigger><SelectValue placeholder="Select staff" /></SelectTrigger><SelectContent>{(staffList || []).map(s => <SelectItem key={s.id} value={String(s.id)}>{s.title}</SelectItem>)}</SelectContent></Select></div>
               <div><Label>Date *</Label><Input type="date" value={form.date} onChange={(e) => setForm(p => ({ ...p, date: e.target.value }))} required /></div>
