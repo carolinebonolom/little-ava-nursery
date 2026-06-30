@@ -3,12 +3,14 @@ import { UNAUTHED_ERR_MSG } from '@shared/const';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, TRPCClientError } from "@trpc/client";
 import { createRoot } from "react-dom/client";
+import { toast } from "sonner";
 import superjson from "superjson";
 import App from "./App";
 import { getLoginUrl } from "./const";
 import "./index.css";
 
 const queryClient = new QueryClient();
+const API_DOWN_MSG = "Service temporarily unavailable. Please try again shortly.";
 
 const redirectToLoginIfUnauthorized = (error: unknown) => {
   if (!(error instanceof TRPCClientError)) return;
@@ -25,6 +27,9 @@ queryClient.getQueryCache().subscribe(event => {
   if (event.type === "updated" && event.action.type === "error") {
     const error = event.query.state.error;
     redirectToLoginIfUnauthorized(error);
+    if (error instanceof Error && error.message === API_DOWN_MSG) {
+      toast.error(API_DOWN_MSG);
+    }
     console.error("[API Query Error]", error);
   }
 });
@@ -33,6 +38,9 @@ queryClient.getMutationCache().subscribe(event => {
   if (event.type === "updated" && event.action.type === "error") {
     const error = event.mutation.state.error;
     redirectToLoginIfUnauthorized(error);
+    if (error instanceof Error && error.message === API_DOWN_MSG) {
+      toast.error(API_DOWN_MSG);
+    }
     console.error("[API Mutation Error]", error);
   }
 });
@@ -42,11 +50,18 @@ const trpcClient = trpc.createClient({
     httpBatchLink({
       url: "/api/trpc",
       transformer: superjson,
-      fetch(input, init) {
-        return globalThis.fetch(input, {
+      async fetch(input, init) {
+        const response = await globalThis.fetch(input, {
           ...(init ?? {}),
           credentials: "include",
         });
+
+        const contentType = response.headers.get("content-type") || "";
+        if (!contentType.toLowerCase().includes("application/json")) {
+          throw new Error(API_DOWN_MSG);
+        }
+
+        return response;
       },
     }),
   ],
