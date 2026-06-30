@@ -1,1 +1,0 @@
-ALTER TABLE `children` ADD `parentEmail` varchar(320);
