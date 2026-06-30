@@ -7,13 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { NURSERY_INFO } from "@shared/nurseryInfo";
-import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { MapPin, Mail, Clock, CheckCircle2, Phone, MessageCircle } from "lucide-react";
 
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
-  const sendMessage = trpc.contact.send.useMutation();
+  const [sending, setSending] = useState(false);
 
   const [form, setForm] = useState({ name: "", email: "", phone: "", subject: "", message: "" });
   const whatsappUrl = `https://wa.me/${NURSERY_INFO.whatsapp.replace("+", "")}?text=Hi%20Little%20Ava%20Nursery%2C%20I%27d%20like%20to%20enquire%20about%20your%20services.`;
@@ -42,20 +41,15 @@ export default function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSending(true);
     try {
-      await sendMessage.mutateAsync(form);
+      await fallbackSubmit();
       setSubmitted(true);
       toast.success("Message sent!");
-      return;
-    } catch {
-      // Fallback for static deployments where API routes are unavailable.
-      try {
-        await fallbackSubmit();
-        setSubmitted(true);
-        toast.success("Message sent!");
-      } catch (fallbackError: any) {
-        toast.error(fallbackError?.message || "Unable to send message right now.");
-      }
+    } catch (fallbackError: any) {
+      toast.error(fallbackError?.message || "Unable to send message right now.");
+    } finally {
+      setSending(false);
     }
   };
 
@@ -114,8 +108,8 @@ export default function Contact() {
                       <Label htmlFor="message">Message *</Label>
                       <Textarea id="message" rows={5} required value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} />
                     </div>
-                    <Button type="submit" disabled={sendMessage.isPending}>
-                      {sendMessage.isPending ? "Sending..." : "Send Message"}
+                    <Button type="submit" disabled={sending}>
+                      {sending ? "Sending..." : "Send Message"}
                     </Button>
                   </form>
                 </CardContent>

@@ -25,6 +25,7 @@ import Gallery from "@/pages/public/Gallery";
 import Testimonials from "@/pages/public/Testimonials";
 import Careers from "@/pages/public/Careers";
 import Contact from "@/pages/public/Contact";
+import MessageUs from "@/pages/public/MessageUs";
 import FAQ from "@/pages/public/FAQ";
 import BookVisit from "@/pages/public/BookVisit";
 import Policies from "@/pages/public/Policies";
@@ -59,6 +60,8 @@ function Router() {
       <Route path="/admissions" component={Admissions} />
       <Route path="/admissions/register" component={AdmissionsForm} />
       <Route path="/waiting-list" component={WaitingList} />
+      <Route path="/waitinglist" component={WaitingList} />
+      <Route path="/join-waiting-list" component={WaitingList} />
       <Route path="/term-dates" component={TermDates} />
       <Route path="/safeguarding" component={Safeguarding} />
       <Route path="/news" component={News} />
@@ -66,12 +69,18 @@ function Router() {
       <Route path="/testimonials" component={Testimonials} />
       <Route path="/careers" component={Careers} />
       <Route path="/contact" component={Contact} />
+      <Route path="/contact-us" component={Contact} />
+      <Route path="/message-us" component={MessageUs} />
+      <Route path="/message" component={MessageUs} />
       <Route path="/faq" component={FAQ} />
       <Route path="/book-visit" component={BookVisit} />
+      <Route path="/book-a-visit" component={BookVisit} />
       <Route path="/policies" component={Policies} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/cookie-policy" component={CookiePolicy} />
       <Route path="/terms" component={Terms} />
+      <Route path="/unsubscribe" component={Unsubscribe} />
+      <Route path="/newsletter/unsubscribe" component={Unsubscribe} />
       <Route path="/components" component={ComponentShowcase} />
       {/* Login pages */}
       <Route path="/login" component={LoginSelection} />

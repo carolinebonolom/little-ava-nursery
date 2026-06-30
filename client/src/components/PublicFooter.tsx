@@ -1,14 +1,8 @@
 import { Link } from "wouter";
 import { NURSERY_INFO } from "@shared/nurseryInfo";
+import { PUBLIC_TABS } from "./publicTabs";
 
-const quickLinks = [
-  { href: "/about", label: "About Us" },
-  { href: "/rooms", label: "Rooms" },
-  { href: "/curriculum", label: "Curriculum" },
-  { href: "/admissions", label: "Admissions" },
-  { href: "/waiting-list", label: "Waiting List" },
-  { href: "/contact", label: "Contact" },
-];
+const quickLinks = PUBLIC_TABS.filter((tab) => tab.showInFooter);
 
 const legalLinks = [
   { href: "/policies", label: "Policies & Documents" },

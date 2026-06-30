@@ -7,14 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { trpc } from "@/lib/trpc";
 import { NURSERY_INFO } from "@shared/nurseryInfo";
 import { toast } from "sonner";
 import { CheckCircle2 } from "lucide-react";
 
 export default function WaitingList() {
   const [submitted, setSubmitted] = useState(false);
-  const joinWaitingList = trpc.waitingList.join.useMutation();
+  const [sending, setSending] = useState(false);
 
   const [form, setForm] = useState({
     parentName: "",
@@ -54,20 +53,15 @@ export default function WaitingList() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSending(true);
     try {
-      await joinWaitingList.mutateAsync(form);
+      await fallbackSubmit();
       setSubmitted(true);
       toast.success("Successfully added to the waiting list!");
-      return;
-    } catch {
-      // Fallback for static deployments where API routes are unavailable.
-      try {
-        await fallbackSubmit();
-        setSubmitted(true);
-        toast.success("Successfully added to the waiting list!");
-      } catch (fallbackError: any) {
-        toast.error(fallbackError?.message || "Unable to submit waiting list form right now.");
-      }
+    } catch (fallbackError: any) {
+      toast.error(fallbackError?.message || "Unable to submit waiting list form right now.");
+    } finally {
+      setSending(false);
     }
   };
 
@@ -149,8 +143,8 @@ export default function WaitingList() {
                   <Label htmlFor="notes">Additional Notes</Label>
                   <Textarea id="notes" placeholder="Any additional information..." value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
                 </div>
-                <Button type="submit" className="w-full" disabled={joinWaitingList.isPending}>
-                  {joinWaitingList.isPending ? "Submitting..." : "Join Waiting List"}
+                <Button type="submit" className="w-full" disabled={sending}>
+                  {sending ? "Submitting..." : "Join Waiting List"}
                 </Button>
               </form>
             </CardContent>

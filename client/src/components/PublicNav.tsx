@@ -2,18 +2,9 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { Menu, X } from "lucide-react";
 import { NURSERY_INFO } from "@shared/nurseryInfo";
+import { PUBLIC_TABS } from "./publicTabs";
 
-const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
-  { href: "/rooms", label: "Rooms" },
-  { href: "/curriculum", label: "Curriculum" },
-  { href: "/admissions", label: "Admissions" },
-  { href: "/waiting-list", label: "Waiting List" },
-  { href: "/policies", label: "Policies & Docs" },
-  { href: "/contact", label: "Contact" },
-  { href: "/login", label: "Management Login" },
-];
+const navLinks = PUBLIC_TABS.filter((tab) => tab.showInNav !== false);
 
 export default function PublicNav() {
   const [open, setOpen] = useState(false);

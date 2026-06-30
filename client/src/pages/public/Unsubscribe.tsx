@@ -4,7 +4,6 @@ import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { trpc } from "@/lib/trpc";
 import { NURSERY_INFO } from "@shared/nurseryInfo";
 import { toast } from "sonner";
 import { MailX, CheckCircle2 } from "lucide-react";
@@ -12,8 +11,7 @@ import { MailX, CheckCircle2 } from "lucide-react";
 export default function Unsubscribe() {
   const [email, setEmail] = useState("");
   const [unsubscribed, setUnsubscribed] = useState(false);
-
-  const unsubscribe = trpc.newsletter.unsubscribe.useMutation();
+  const [sending, setSending] = useState(false);
 
   const fallbackSubmit = async () => {
     const response = await fetch(`https://formsubmit.co/ajax/${NURSERY_INFO.email}`, {
@@ -38,20 +36,15 @@ export default function Unsubscribe() {
     e.preventDefault();
     if (!email) return;
 
+    setSending(true);
     try {
-      await unsubscribe.mutateAsync({ email });
+      await fallbackSubmit();
       setUnsubscribed(true);
-      toast.success("You have been unsubscribed successfully.");
-      return;
-    } catch {
-      // Fallback for static deployments where API routes are unavailable.
-      try {
-        await fallbackSubmit();
-        setUnsubscribed(true);
-        toast.success("Unsubscribe request sent successfully.");
-      } catch (fallbackError: any) {
-        toast.error(fallbackError?.message || "Could not unsubscribe. Please try again.");
-      }
+      toast.success("Unsubscribe request sent successfully.");
+    } catch (fallbackError: any) {
+      toast.error(fallbackError?.message || "Could not unsubscribe. Please try again.");
+    } finally {
+      setSending(false);
     }
   };
 
@@ -88,8 +81,8 @@ export default function Unsubscribe() {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                     />
-                    <Button type="submit" variant="destructive" className="w-full" disabled={unsubscribe.isPending}>
-                      {unsubscribe.isPending ? "Processing..." : "Unsubscribe"}
+                    <Button type="submit" variant="destructive" className="w-full" disabled={sending}>
+                      {sending ? "Processing..." : "Unsubscribe"}
                     </Button>
                   </form>
                   <p className="text-xs text-muted-foreground mt-4">
