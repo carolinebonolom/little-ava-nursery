@@ -13,13 +13,51 @@ import { MapPin, Mail, Clock, CheckCircle2, Phone, MessageCircle } from "lucide-
 
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
-  const sendMessage = trpc.contact.send.useMutation({
-    onSuccess: () => { setSubmitted(true); toast.success("Message sent!"); },
-    onError: (err: any) => toast.error(err.message),
-  });
+  const sendMessage = trpc.contact.send.useMutation();
 
   const [form, setForm] = useState({ name: "", email: "", phone: "", subject: "", message: "" });
   const whatsappUrl = `https://wa.me/${NURSERY_INFO.whatsapp.replace("+", "")}?text=Hi%20Little%20Ava%20Nursery%2C%20I%27d%20like%20to%20enquire%20about%20your%20services.`;
+
+  const fallbackSubmit = async () => {
+    const response = await fetch(`https://formsubmit.co/ajax/${NURSERY_INFO.email}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        name: form.name,
+        email: form.email,
+        phone: form.phone || "",
+        subject: form.subject || "Contact Form Submission",
+        message: form.message,
+        _subject: `Little Ava Contact: ${form.subject || "General Enquiry"}`,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Unable to submit message right now. Please try again shortly.");
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await sendMessage.mutateAsync(form);
+      setSubmitted(true);
+      toast.success("Message sent!");
+      return;
+    } catch {
+      // Fallback for static deployments where API routes are unavailable.
+      try {
+        await fallbackSubmit();
+        setSubmitted(true);
+        toast.success("Message sent!");
+      } catch (fallbackError: any) {
+        toast.error(fallbackError?.message || "Unable to send message right now.");
+      }
+    }
+  };
 
   if (submitted) {
     return (
@@ -51,7 +89,7 @@ export default function Contact() {
               <Card className="border-0 shadow-sm">
                 <CardContent className="p-6">
                   <h3 className="font-semibold text-lg mb-4">Send Us a Message</h3>
-                  <form onSubmit={(e) => { e.preventDefault(); sendMessage.mutate(form); }} className="space-y-4">
+                  <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="name">Your Name *</Label>
