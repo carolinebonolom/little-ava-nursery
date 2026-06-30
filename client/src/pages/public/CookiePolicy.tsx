@@ -49,7 +49,13 @@ export default function CookiePolicy() {
             </div>
             <div>
               <h3 className="font-semibold text-foreground text-base mb-2">Contact</h3>
-              <p>If you have questions about our use of cookies, please contact us at info@littleavanursery.co.uk or call +44 7386 096634.</p>
+              <p>
+                If you have questions about our use of cookies, please contact us at{" "}
+                <a href="mailto:info@littleavanursery.co.uk" className="text-primary hover:underline">
+                  info@littleavanursery.co.uk
+                </a>{" "}
+                or call +44 7386 096634.
+              </p>
             </div>
           </div>
         </div>

@@ -64,7 +64,13 @@ export default function PrivacyPolicy() {
             </div>
             <div>
               <h3 className="font-semibold text-foreground text-base mb-2">8. Contact Us</h3>
-              <p>For any privacy-related queries, please contact our Data Protection Officer at info@littleavanursery.co.uk or call +44 7386 096634.</p>
+              <p>
+                For any privacy-related queries, please contact our Data Protection Officer at{" "}
+                <a href="mailto:info@littleavanursery.co.uk" className="text-primary hover:underline">
+                  info@littleavanursery.co.uk
+                </a>{" "}
+                or call +44 7386 096634.
+              </p>
             </div>
           </div>
         </div>
