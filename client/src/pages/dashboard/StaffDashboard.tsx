@@ -51,11 +51,22 @@ export default function StaffDashboard() {
       toast.error("Please select a child and activity type");
       return;
     }
+
+    let parsedDetails: unknown;
+    if (activityForm.details.trim()) {
+      try {
+        parsedDetails = JSON.parse(activityForm.details);
+      } catch {
+        toast.error("Additional details must be valid JSON, or leave it blank.");
+        return;
+      }
+    }
+
     logActivity.mutate({
       childId: Number(activityForm.childId),
       type: activityForm.type,
       description: activityForm.description || undefined,
-      details: activityForm.details ? JSON.parse(activityForm.details) : undefined,
+      details: parsedDetails,
     });
   };
 

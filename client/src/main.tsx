@@ -58,7 +58,16 @@ const trpcClient = trpc.createClient({
 
         const contentType = response.headers.get("content-type") || "";
         if (!contentType.toLowerCase().includes("application/json")) {
-          throw new Error(API_DOWN_MSG);
+          const bodyPreview = await response.clone().text();
+          const looksLikeHtml =
+            /^\s*</.test(bodyPreview) ||
+            /<!doctype html>/i.test(bodyPreview) ||
+            /<html/i.test(bodyPreview);
+
+          // Only treat HTML fallback/error pages as service downtime.
+          if (looksLikeHtml) {
+            throw new Error(API_DOWN_MSG);
+          }
         }
 
         return response;
