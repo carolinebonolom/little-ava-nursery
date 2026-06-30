@@ -37,7 +37,8 @@ jobs:
           CI: true
           SITE_URL: ${{ inputs.site-url }}
         run: |
-          npm install --global pnpm
+          corepack enable
+          corepack prepare pnpm@latest --activate
           pnpm install
           pnpm build
 
