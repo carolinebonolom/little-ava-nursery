@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Route, Router as WouterRouter, Switch, useHashLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
@@ -43,7 +43,7 @@ import AdminDashboard from "@/pages/dashboard/AdminDashboard";
 import LoginSelection from "./pages/LoginSelection";
 import LoginAdmin from "./pages/LoginAdmin";
 
-function Router() {
+function AppRoutes() {
   return (
     <Switch>
       {/* Public pages */}
@@ -101,7 +101,9 @@ function App() {
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
-          <Router />
+          <WouterRouter hook={useHashLocation}>
+            <AppRoutes />
+          </WouterRouter>
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
