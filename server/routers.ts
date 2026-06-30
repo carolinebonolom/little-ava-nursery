@@ -1,6 +1,7 @@
 import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
+import { notifyOwner } from "./_core/notification";
 import { publicProcedure, protectedProcedure, adminProcedure, staffProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { getDb } from "./db";
@@ -71,6 +72,17 @@ const fallbackContacts: any[] = [];
 const fallbackEnquiries: any[] = [];
 const fallbackChildren: any[] = [];
 const fallbackStaffProfiles: any[] = [];
+
+const OWNER_INBOX_EMAIL = "info@littleavanursery.co.uk";
+
+async function sendOwnerInboxAlert(title: string, lines: string[]) {
+  const content = [`Forward to: ${OWNER_INBOX_EMAIL}`, "", ...lines].join("\n");
+  try {
+    await notifyOwner({ title, content });
+  } catch (error) {
+    console.warn("[Owner Inbox Alert] Failed to send:", error);
+  }
+}
 
 export const appRouter = router({
   system: systemRouter,
@@ -315,6 +327,16 @@ export const appRouter = router({
             status: "waiting",
             createdAt: new Date(),
           });
+          await sendOwnerInboxAlert("New Waiting List Submission", [
+            `Parent: ${input.parentName}`,
+            `Email: ${input.parentEmail}`,
+            `Phone: ${input.parentPhone || "N/A"}`,
+            `Child: ${input.childName}`,
+            `Child DOB: ${input.childDob}`,
+            `Preferred Start Date: ${input.preferredStartDate || "N/A"}`,
+            `Preferred Sessions: ${input.preferredSessions || "N/A"}`,
+            `Notes: ${input.notes || "N/A"}`,
+          ]);
           return { success: true, stored: false };
         }
         await db.insert(waitingList).values({
@@ -327,6 +349,16 @@ export const appRouter = router({
           preferredSessions: input.preferredSessions || null,
           notes: input.notes || null,
         });
+        await sendOwnerInboxAlert("New Waiting List Submission", [
+          `Parent: ${input.parentName}`,
+          `Email: ${input.parentEmail}`,
+          `Phone: ${input.parentPhone || "N/A"}`,
+          `Child: ${input.childName}`,
+          `Child DOB: ${input.childDob}`,
+          `Preferred Start Date: ${input.preferredStartDate || "N/A"}`,
+          `Preferred Sessions: ${input.preferredSessions || "N/A"}`,
+          `Notes: ${input.notes || "N/A"}`,
+        ]);
         return { success: true };
       }),
     list: adminProcedure.query(async () => {
@@ -375,6 +407,15 @@ export const appRouter = router({
             status: "pending",
             createdAt: new Date(),
           });
+          await sendOwnerInboxAlert("New Visit Booking", [
+            `Parent: ${input.parentName}`,
+            `Email: ${input.parentEmail}`,
+            `Phone: ${input.parentPhone || "N/A"}`,
+            `Child Age: ${input.childAge || "N/A"}`,
+            `Preferred Date: ${input.preferredDate || "N/A"}`,
+            `Preferred Time: ${input.preferredTime || "N/A"}`,
+            `Message: ${input.message || "N/A"}`,
+          ]);
           return { success: true, stored: false };
         }
         await db.insert(visitBookings).values({
@@ -386,6 +427,15 @@ export const appRouter = router({
           preferredTime: input.preferredTime || null,
           message: input.message || null,
         });
+        await sendOwnerInboxAlert("New Visit Booking", [
+          `Parent: ${input.parentName}`,
+          `Email: ${input.parentEmail}`,
+          `Phone: ${input.parentPhone || "N/A"}`,
+          `Child Age: ${input.childAge || "N/A"}`,
+          `Preferred Date: ${input.preferredDate || "N/A"}`,
+          `Preferred Time: ${input.preferredTime || "N/A"}`,
+          `Message: ${input.message || "N/A"}`,
+        ]);
         return { success: true };
       }),
     list: adminProcedure.query(async () => {
@@ -442,6 +492,13 @@ export const appRouter = router({
             notes: null,
             createdAt: new Date(),
           });
+          await sendOwnerInboxAlert("New Contact Form Message", [
+            `Name: ${input.name}`,
+            `Email: ${input.email}`,
+            `Phone: ${input.phone || "N/A"}`,
+            `Subject: ${input.subject || "N/A"}`,
+            `Message: ${input.message}`,
+          ]);
           return { success: true, stored: false };
         }
         await db.insert(contactMessages).values({
@@ -459,6 +516,13 @@ export const appRouter = router({
           childAge: null,
           message: input.message,
         });
+        await sendOwnerInboxAlert("New Contact Form Message", [
+          `Name: ${input.name}`,
+          `Email: ${input.email}`,
+          `Phone: ${input.phone || "N/A"}`,
+          `Subject: ${input.subject || "N/A"}`,
+          `Message: ${input.message}`,
+        ]);
         return { success: true };
       }),
     list: adminProcedure.query(async () => {
@@ -1719,6 +1783,13 @@ export const appRouter = router({
             notes: null,
             createdAt: new Date(),
           });
+          await sendOwnerInboxAlert("New Website Enquiry", [
+            `Name: ${input.name}`,
+            `Email: ${input.email}`,
+            `Phone: ${input.phone || "N/A"}`,
+            `Child Age: ${input.childAge || "N/A"}`,
+            `Message: ${input.message || "N/A"}`,
+          ]);
           return { success: true, stored: false };
         }
         await db.insert(enquiries).values({
@@ -1728,6 +1799,13 @@ export const appRouter = router({
           childAge: input.childAge || null,
           message: input.message || null,
         });
+        await sendOwnerInboxAlert("New Website Enquiry", [
+          `Name: ${input.name}`,
+          `Email: ${input.email}`,
+          `Phone: ${input.phone || "N/A"}`,
+          `Child Age: ${input.childAge || "N/A"}`,
+          `Message: ${input.message || "N/A"}`,
+        ]);
         return { success: true };
       }),
     list: adminProcedure.query(async () => {
