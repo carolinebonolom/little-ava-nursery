@@ -33,6 +33,7 @@ import CookiePolicy from "@/pages/public/CookiePolicy";
 import Terms from "@/pages/public/Terms";
 import AdmissionsForm from "@/pages/public/AdmissionsForm";
 import Unsubscribe from "@/pages/public/Unsubscribe";
+import ComponentShowcase from "@/pages/ComponentShowcase";
 
 // Dashboard pages
 import AdminDashboard from "@/pages/dashboard/AdminDashboard";
@@ -75,6 +76,7 @@ function Router() {
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/cookie-policy" component={CookiePolicy} />
       <Route path="/terms" component={Terms} />
+      <Route path="/components" component={ComponentShowcase} />
       {/* Login pages */}
       <Route path="/login" component={LoginSelection} />
       <Route path="/login/admin" component={LoginAdmin} />
