@@ -2,6 +2,7 @@ import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { notifyOwner } from "./_core/notification";
+import { sendEmail } from "./_core/email";
 import { publicProcedure, protectedProcedure, adminProcedure, staffProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { getDb } from "./db";
@@ -76,9 +77,20 @@ const fallbackStaffProfiles: any[] = [];
 const OWNER_INBOX_EMAIL = "info@littleavanursery.co.uk";
 
 async function sendOwnerInboxAlert(title: string, lines: string[]) {
-  const content = [`Forward to: ${OWNER_INBOX_EMAIL}`, "", ...lines].join("\n");
+  const content = lines.join("\n");
+  const emailSent = await sendEmail({
+    to: OWNER_INBOX_EMAIL,
+    subject: `[Little Ava Nursery] ${title}`,
+    text: content,
+  });
+
+  if (emailSent) {
+    return;
+  }
+
+  const fallbackContent = [`Forward to: ${OWNER_INBOX_EMAIL}`, "", ...lines].join("\n");
   try {
-    await notifyOwner({ title, content });
+    await notifyOwner({ title, content: fallbackContent });
   } catch (error) {
     console.warn("[Owner Inbox Alert] Failed to send:", error);
   }
