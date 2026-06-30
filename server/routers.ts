@@ -739,6 +739,48 @@ export const appRouter = router({
     rooms: publicProcedure.query(async () => {
       const db = await getDb();
       if (!db) return fallbackRooms;
+      const existingRooms = await db.select().from(rooms).orderBy(rooms.name);
+      if (existingRooms.length > 0) return existingRooms;
+
+      await db.insert(rooms).values([
+        {
+          name: "Baby Room",
+          ageRangeMin: 3,
+          ageRangeMax: 12,
+          capacity: 12,
+          staffRatio: "1:3",
+          description: "Gentle care for babies and early sensory development",
+          color: "#E8D5E0",
+        },
+        {
+          name: "Toddler Room",
+          ageRangeMin: 12,
+          ageRangeMax: 24,
+          capacity: 14,
+          staffRatio: "1:3",
+          description: "Active exploration and early independence",
+          color: "#D5E8D5",
+        },
+        {
+          name: "Pre-School Room",
+          ageRangeMin: 24,
+          ageRangeMax: 36,
+          capacity: 16,
+          staffRatio: "1:4",
+          description: "Building confidence and social skills",
+          color: "#D5E0E8",
+        },
+        {
+          name: "School Readiness Room",
+          ageRangeMin: 36,
+          ageRangeMax: 60,
+          capacity: 18,
+          staffRatio: "1:8",
+          description: "Preparing children for school transition",
+          color: "#E8E5D5",
+        },
+      ]);
+
       return db.select().from(rooms).orderBy(rooms.name);
     }),
   }),

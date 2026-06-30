@@ -1692,6 +1692,8 @@ function ChildrenManagementTab() {
 
   const { data: allChildren } = trpc.children.listAll.useQuery();
   const { data: roomsList } = trpc.children.rooms.useQuery();
+  const roomOptions = roomsList || [];
+  const hasRoomOptions = roomOptions.length > 0;
 
   const addChild = trpc.children.adminAdd.useMutation({
     onSuccess: () => {
@@ -1714,6 +1716,10 @@ function ChildrenManagementTab() {
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!hasRoomOptions) {
+      toast.error("No room options available yet. Please refresh and try again.");
+      return;
+    }
     if (!formData.firstName || !formData.lastName || !formData.dateOfBirth || !formData.roomId) {
       toast.error("Please fill in required fields (name, DOB, room)");
       return;
@@ -1752,7 +1758,7 @@ function ChildrenManagementTab() {
             onChange={(e) => setFilterRoom(e.target.value === "all" ? "all" : Number(e.target.value))}
           >
             <option value="all">All Rooms</option>
-            {roomsList?.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
+            {roomOptions.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
           </select>
         </div>
         <Button size="sm" onClick={() => setShowAddForm(!showAddForm)}>
@@ -1776,8 +1782,9 @@ function ChildrenManagementTab() {
                   <Label>Room *</Label>
                   <select className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm" value={formData.roomId} onChange={(e) => setFormData({...formData, roomId: Number(e.target.value)})} required>
                     <option value={0}>Select room...</option>
-                    {roomsList?.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
+                    {roomOptions.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
                   </select>
+                  {!hasRoomOptions && <p className="text-xs text-red-600 mt-1">No rooms found. Please refresh to load room options.</p>}
                 </div>
                 <div>
                   <Label>Gender</Label>
@@ -1800,7 +1807,7 @@ function ChildrenManagementTab() {
               </div>
               <div><Label>Medical Info</Label><Input value={formData.medicalInfo} onChange={(e) => setFormData({...formData, medicalInfo: e.target.value})} /></div>
               <div><Label>Notes</Label><Input value={formData.notes} onChange={(e) => setFormData({...formData, notes: e.target.value})} /></div>
-              <Button type="submit" disabled={addChild.isPending}>{addChild.isPending ? "Adding..." : "Add Child"}</Button>
+              <Button type="submit" disabled={addChild.isPending || !hasRoomOptions}>{addChild.isPending ? "Adding..." : "Add Child"}</Button>
             </form>
           </CardContent>
         </Card>
@@ -1836,7 +1843,7 @@ function ChildrenManagementTab() {
                         onChange={(e) => handleMoveRoom(child.id, Number(e.target.value))}
                       >
                         <option value="" disabled>Move to...</option>
-                        {roomsList?.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
+                        {roomOptions.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
                       </select>
                     </div>
                   </div>

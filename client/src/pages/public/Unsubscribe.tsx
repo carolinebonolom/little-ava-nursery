@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
+import { NURSERY_INFO } from "@shared/nurseryInfo";
 import { toast } from "sonner";
 import { MailX, CheckCircle2 } from "lucide-react";
 
@@ -12,13 +13,47 @@ export default function Unsubscribe() {
   const [email, setEmail] = useState("");
   const [unsubscribed, setUnsubscribed] = useState(false);
 
-  const unsubscribe = trpc.newsletter.unsubscribe.useMutation({
-    onSuccess: () => {
+  const unsubscribe = trpc.newsletter.unsubscribe.useMutation();
+
+  const fallbackSubmit = async () => {
+    const response = await fetch(`https://formsubmit.co/ajax/${NURSERY_INFO.email}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        _subject: "Little Ava Newsletter Unsubscribe Request",
+        email,
+        message: `Please unsubscribe this email from newsletter: ${email}`,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Could not unsubscribe right now. Please try again.");
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    try {
+      await unsubscribe.mutateAsync({ email });
       setUnsubscribed(true);
       toast.success("You have been unsubscribed successfully.");
-    },
-    onError: (e) => toast.error(e.message || "Could not unsubscribe. Please try again."),
-  });
+      return;
+    } catch {
+      // Fallback for static deployments where API routes are unavailable.
+      try {
+        await fallbackSubmit();
+        setUnsubscribed(true);
+        toast.success("Unsubscribe request sent successfully.");
+      } catch (fallbackError: any) {
+        toast.error(fallbackError?.message || "Could not unsubscribe. Please try again.");
+      }
+    }
+  };
 
   return (
     <PublicLayout>
@@ -45,13 +80,7 @@ export default function Unsubscribe() {
                   <p className="text-sm text-muted-foreground mb-6">
                     Enter your email address below to unsubscribe from Little Ava Nursery newsletters.
                   </p>
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      if (email) unsubscribe.mutate({ email });
-                    }}
-                    className="space-y-4"
-                  >
+                  <form onSubmit={handleSubmit} className="space-y-4">
                     <Input
                       type="email"
                       placeholder="your@email.com"

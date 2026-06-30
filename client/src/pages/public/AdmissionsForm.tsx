@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import PublicLayout from "@/components/PublicLayout";
 import PageHeader from "@/components/PageHeader";
 import { trpc } from "@/lib/trpc";
+import { NURSERY_INFO } from "@shared/nurseryInfo";
 import { toast } from "sonner";
 import { CheckCircle2, FileText } from "lucide-react";
 
@@ -62,16 +63,40 @@ export default function AdmissionsForm() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const registerChild = trpc.children.register.useMutation({
-    onSuccess: () => {
-      setSubmitted(true);
-      toast.success("Registration submitted successfully!");
-    },
-    onError: (err) => toast.error(err.message),
-  });
+  const registerChild = trpc.children.register.useMutation();
 
-  const handleSubmit = () => {
-    registerChild.mutate({
+  const fallbackSubmit = async () => {
+    const response = await fetch(`https://formsubmit.co/ajax/${NURSERY_INFO.email}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        _subject: `Little Ava Admissions: ${formData.childFirstName} ${formData.childLastName}`,
+        parentName: `${formData.parentFirstName} ${formData.parentLastName}`,
+        parentEmail: formData.parentEmail,
+        parentPhone: formData.parentPhone,
+        childName: `${formData.childFirstName} ${formData.childLastName}`,
+        childDob: formData.childDob,
+        preferredStartDate: formData.preferredStartDate || "",
+        preferredSessions: formData.preferredSessions || "",
+        allergies: formData.allergies || "",
+        medicalConditions: formData.medicalConditions || "",
+        dietaryRequirements: formData.dietaryRequirements || "",
+        emergencyContact: `${formData.emergencyName} (${formData.emergencyRelationship})`,
+        emergencyPhone: formData.emergencyPhone,
+        notes: formData.additionalNotes || "",
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Unable to submit registration right now. Please try again shortly.");
+    }
+  };
+
+  const handleSubmit = async () => {
+    const payload = {
       firstName: formData.childFirstName,
       lastName: formData.childLastName,
       dateOfBirth: formData.childDob,
@@ -82,7 +107,23 @@ export default function AdmissionsForm() {
       emergencyContact: `${formData.emergencyName} (${formData.emergencyRelationship})`,
       emergencyPhone: formData.emergencyPhone,
       notes: `Parent: ${formData.parentFirstName} ${formData.parentLastName}, ${formData.parentEmail}, ${formData.parentPhone}. Address: ${formData.parentAddress} ${formData.parentPostcode}. Preferred start: ${formData.preferredStartDate}. Sessions: ${formData.preferredSessions}. Funding: ${formData.fundingCode}. Consents: Photos=${formData.consentPhotos}, Outings=${formData.consentOutings}, Medical=${formData.consentMedical}. Source: ${formData.howDidYouHear}. Notes: ${formData.additionalNotes}`,
-    });
+    };
+
+    try {
+      await registerChild.mutateAsync(payload);
+      setSubmitted(true);
+      toast.success("Registration submitted successfully!");
+      return;
+    } catch {
+      // Fallback for static deployments or unavailable API routes.
+      try {
+        await fallbackSubmit();
+        setSubmitted(true);
+        toast.success("Registration submitted successfully!");
+      } catch (fallbackError: any) {
+        toast.error(fallbackError?.message || "Unable to submit registration right now.");
+      }
+    }
   };
 
   if (submitted) {
