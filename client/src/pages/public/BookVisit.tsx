@@ -6,14 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { trpc } from "@/lib/trpc";
 import { NURSERY_INFO } from "@shared/nurseryInfo";
 import { toast } from "sonner";
 import { CheckCircle2 } from "lucide-react";
 
 export default function BookVisit() {
   const [submitted, setSubmitted] = useState(false);
-  const bookVisit = trpc.visits.book.useMutation();
+  const [sending, setSending] = useState(false);
 
   const [form, setForm] = useState({ parentName: "", parentEmail: "", parentPhone: "", childAge: "", preferredDate: "", preferredTime: "", message: "" });
 
@@ -43,20 +42,15 @@ export default function BookVisit() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSending(true);
     try {
-      await bookVisit.mutateAsync(form);
+      await fallbackSubmit();
       setSubmitted(true);
       toast.success("Visit booked!");
-      return;
-    } catch {
-      // Fallback for static deployments where API routes are unavailable.
-      try {
-        await fallbackSubmit();
-        setSubmitted(true);
-        toast.success("Visit booked!");
-      } catch (fallbackError: any) {
-        toast.error(fallbackError?.message || "Unable to submit visit booking right now.");
-      }
+    } catch (fallbackError: any) {
+      toast.error(fallbackError?.message || "Unable to submit visit booking right now.");
+    } finally {
+      setSending(false);
     }
   };
 
@@ -122,8 +116,8 @@ export default function BookVisit() {
                   <Label htmlFor="message">Any Questions or Notes</Label>
                   <Textarea id="message" value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} />
                 </div>
-                <Button type="submit" className="w-full" disabled={bookVisit.isPending}>
-                  {bookVisit.isPending ? "Booking..." : "Book Your Visit"}
+                <Button type="submit" className="w-full" disabled={sending}>
+                  {sending ? "Booking..." : "Book Your Visit"}
                 </Button>
               </form>
             </CardContent>

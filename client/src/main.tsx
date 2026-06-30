@@ -57,17 +57,15 @@ const trpcClient = trpc.createClient({
         });
 
         const contentType = response.headers.get("content-type") || "";
-        if (!contentType.toLowerCase().includes("application/json")) {
-          const bodyPreview = await response.clone().text();
-          const looksLikeHtml =
-            /^\s*</.test(bodyPreview) ||
-            /<!doctype html>/i.test(bodyPreview) ||
-            /<html/i.test(bodyPreview);
+        const bodyPreview = (await response.clone().text()).slice(0, 512);
+        const looksLikeHtml =
+          /^\s*</.test(bodyPreview) ||
+          /<!doctype html>/i.test(bodyPreview) ||
+          /<html/i.test(bodyPreview);
 
-          // Only treat HTML fallback/error pages as service downtime.
-          if (looksLikeHtml) {
-            throw new Error(API_DOWN_MSG);
-          }
+        // Some hosts return HTML fallback pages for API paths; prevent JSON parse crashes.
+        if (looksLikeHtml || !contentType.toLowerCase().includes("application/json")) {
+          if (looksLikeHtml) throw new Error(API_DOWN_MSG);
         }
 
         return response;

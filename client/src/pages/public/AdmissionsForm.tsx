@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import PublicLayout from "@/components/PublicLayout";
 import PageHeader from "@/components/PageHeader";
-import { trpc } from "@/lib/trpc";
 import { NURSERY_INFO } from "@shared/nurseryInfo";
 import { toast } from "sonner";
 import { CheckCircle2, FileText } from "lucide-react";
@@ -16,6 +15,7 @@ import { CheckCircle2, FileText } from "lucide-react";
 export default function AdmissionsForm() {
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
   const [formData, setFormData] = useState({
     // Parent/Guardian Details
     parentFirstName: "",
@@ -63,8 +63,6 @@ export default function AdmissionsForm() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const registerChild = trpc.children.register.useMutation();
-
   const fallbackSubmit = async () => {
     const response = await fetch(`https://formsubmit.co/ajax/${NURSERY_INFO.email}`, {
       method: "POST",
@@ -96,33 +94,15 @@ export default function AdmissionsForm() {
   };
 
   const handleSubmit = async () => {
-    const payload = {
-      firstName: formData.childFirstName,
-      lastName: formData.childLastName,
-      dateOfBirth: formData.childDob,
-      gender: (formData.childGender || undefined) as "male" | "female" | "other" | undefined,
-      allergies: formData.allergies || undefined,
-      medicalInfo: formData.medicalConditions || undefined,
-      dietaryRequirements: formData.dietaryRequirements || undefined,
-      emergencyContact: `${formData.emergencyName} (${formData.emergencyRelationship})`,
-      emergencyPhone: formData.emergencyPhone,
-      notes: `Parent: ${formData.parentFirstName} ${formData.parentLastName}, ${formData.parentEmail}, ${formData.parentPhone}. Address: ${formData.parentAddress} ${formData.parentPostcode}. Preferred start: ${formData.preferredStartDate}. Sessions: ${formData.preferredSessions}. Funding: ${formData.fundingCode}. Consents: Photos=${formData.consentPhotos}, Outings=${formData.consentOutings}, Medical=${formData.consentMedical}. Source: ${formData.howDidYouHear}. Notes: ${formData.additionalNotes}`,
-    };
-
+    setSending(true);
     try {
-      await registerChild.mutateAsync(payload);
+      await fallbackSubmit();
       setSubmitted(true);
       toast.success("Registration submitted successfully!");
-      return;
-    } catch {
-      // Fallback for static deployments or unavailable API routes.
-      try {
-        await fallbackSubmit();
-        setSubmitted(true);
-        toast.success("Registration submitted successfully!");
-      } catch (fallbackError: any) {
-        toast.error(fallbackError?.message || "Unable to submit registration right now.");
-      }
+    } catch (fallbackError: any) {
+      toast.error(fallbackError?.message || "Unable to submit registration right now.");
+    } finally {
+      setSending(false);
     }
   };
 
@@ -334,9 +314,9 @@ export default function AdmissionsForm() {
                 <Button variant="outline" onClick={() => setStep(3)}>Back</Button>
                 <Button
                   onClick={handleSubmit}
-                  disabled={!formData.consentDataProcessing || !formData.consentTerms || registerChild.isPending}
+                  disabled={!formData.consentDataProcessing || !formData.consentTerms || sending}
                 >
-                  {registerChild.isPending ? "Submitting..." : "Submit Registration"}
+                  {sending ? "Submitting..." : "Submit Registration"}
                 </Button>
               </div>
             </CardContent>
