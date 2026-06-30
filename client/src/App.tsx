@@ -1,7 +1,8 @@
+import { useCallback, useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Router as WouterRouter, Switch, useHashLocation } from "wouter";
+import { Route, Router as WouterRouter, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
@@ -42,6 +43,38 @@ import AdminDashboard from "@/pages/dashboard/AdminDashboard";
 // Login pages
 import LoginSelection from "./pages/LoginSelection";
 import LoginAdmin from "./pages/LoginAdmin";
+
+function getHashPath() {
+  if (typeof window === "undefined") return "/";
+  const hash = window.location.hash.replace(/^#/, "");
+  return hash || "/";
+}
+
+function useHashLocation() {
+  const [loc, setLoc] = useState(getHashPath);
+
+  useEffect(() => {
+    const sync = () => setLoc(getHashPath());
+    window.addEventListener("hashchange", sync);
+    window.addEventListener("popstate", sync);
+    return () => {
+      window.removeEventListener("hashchange", sync);
+      window.removeEventListener("popstate", sync);
+    };
+  }, []);
+
+  const navigate = useCallback((to: string) => {
+    const path = to.startsWith("/") ? to : `/${to}`;
+    if (getHashPath() !== path) {
+      window.location.hash = path;
+    } else {
+      setLoc(path);
+    }
+    return true;
+  }, []);
+
+  return [loc, navigate] as const;
+}
 
 function AppRoutes() {
   return (
