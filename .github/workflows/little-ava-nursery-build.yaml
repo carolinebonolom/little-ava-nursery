@@ -39,8 +39,8 @@ jobs:
         run: |
           corepack enable
           corepack prepare pnpm@latest --activate
-          pnpm install
-          pnpm build
+          corepack pnpm install
+          corepack pnpm build
 
 # Please do not touch the following action
       - name: Store deployment content
