@@ -52,6 +52,26 @@ async function verifyStoredPassword(inputPassword: string, storedPassword: strin
   return storedPassword === inputPassword || storedPassword === inputPassword.trim();
 }
 
+const fallbackRooms = [
+  { id: 1, name: "Baby Room" },
+  { id: 2, name: "Toddler Room" },
+  { id: 3, name: "Pre-School Room" },
+  { id: 4, name: "School Readiness Room" },
+];
+
+let fallbackIdCounter = 1000;
+const nextFallbackId = () => {
+  fallbackIdCounter += 1;
+  return fallbackIdCounter;
+};
+
+const fallbackWaitingList: any[] = [];
+const fallbackVisits: any[] = [];
+const fallbackContacts: any[] = [];
+const fallbackEnquiries: any[] = [];
+const fallbackChildren: any[] = [];
+const fallbackStaffProfiles: any[] = [];
+
 export const appRouter = router({
   system: systemRouter,
   auth: router({
@@ -281,7 +301,22 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         const db = await getDb();
-        if (!db) throw new Error("Database unavailable");
+        if (!db) {
+          fallbackWaitingList.unshift({
+            id: nextFallbackId(),
+            parentName: input.parentName,
+            parentEmail: input.parentEmail,
+            parentPhone: input.parentPhone || null,
+            childName: input.childName,
+            childDob: new Date(input.childDob),
+            preferredStartDate: input.preferredStartDate ? new Date(input.preferredStartDate) : null,
+            preferredSessions: input.preferredSessions || null,
+            notes: input.notes || null,
+            status: "waiting",
+            createdAt: new Date(),
+          });
+          return { success: true, stored: false };
+        }
         await db.insert(waitingList).values({
           parentName: input.parentName,
           parentEmail: input.parentEmail,
@@ -296,14 +331,18 @@ export const appRouter = router({
       }),
     list: adminProcedure.query(async () => {
       const db = await getDb();
-      if (!db) return [];
+      if (!db) return fallbackWaitingList;
       return db.select().from(waitingList).orderBy(desc(waitingList.createdAt));
     }),
     updateStatus: adminProcedure
       .input(z.object({ id: z.number(), status: z.enum(["waiting", "offered", "accepted", "declined"]) }))
       .mutation(async ({ input }) => {
         const db = await getDb();
-        if (!db) throw new Error("Database unavailable");
+        if (!db) {
+          const item = fallbackWaitingList.find((x) => x.id === input.id);
+          if (item) item.status = input.status;
+          return { success: true, stored: false };
+        }
         await db.update(waitingList).set({ status: input.status }).where(eq(waitingList.id, input.id));
         return { success: true };
       }),
@@ -323,7 +362,21 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         const db = await getDb();
-        if (!db) throw new Error("Database unavailable");
+        if (!db) {
+          fallbackVisits.unshift({
+            id: nextFallbackId(),
+            parentName: input.parentName,
+            parentEmail: input.parentEmail,
+            parentPhone: input.parentPhone || null,
+            childAge: input.childAge || null,
+            preferredDate: input.preferredDate ? new Date(input.preferredDate) : null,
+            preferredTime: input.preferredTime || null,
+            message: input.message || null,
+            status: "pending",
+            createdAt: new Date(),
+          });
+          return { success: true, stored: false };
+        }
         await db.insert(visitBookings).values({
           parentName: input.parentName,
           parentEmail: input.parentEmail,
@@ -337,14 +390,18 @@ export const appRouter = router({
       }),
     list: adminProcedure.query(async () => {
       const db = await getDb();
-      if (!db) return [];
+      if (!db) return fallbackVisits;
       return db.select().from(visitBookings).orderBy(desc(visitBookings.createdAt));
     }),
     updateStatus: adminProcedure
       .input(z.object({ id: z.number(), status: z.enum(["pending", "confirmed", "completed", "cancelled"]) }))
       .mutation(async ({ input }) => {
         const db = await getDb();
-        if (!db) throw new Error("Database unavailable");
+        if (!db) {
+          const item = fallbackVisits.find((x) => x.id === input.id);
+          if (item) item.status = input.status;
+          return { success: true, stored: false };
+        }
         await db.update(visitBookings).set({ status: input.status }).where(eq(visitBookings.id, input.id));
         return { success: true };
       }),
@@ -362,7 +419,31 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         const db = await getDb();
-        if (!db) throw new Error("Database unavailable");
+        if (!db) {
+          const contactId = nextFallbackId();
+          fallbackContacts.unshift({
+            id: contactId,
+            name: input.name,
+            email: input.email,
+            phone: input.phone || null,
+            subject: input.subject || null,
+            message: input.message,
+            isRead: false,
+            createdAt: new Date(),
+          });
+          fallbackEnquiries.unshift({
+            id: nextFallbackId(),
+            name: input.name,
+            email: input.email,
+            phone: input.phone || null,
+            childAge: null,
+            message: input.message,
+            status: "new",
+            notes: null,
+            createdAt: new Date(),
+          });
+          return { success: true, stored: false };
+        }
         await db.insert(contactMessages).values({
           name: input.name,
           email: input.email,
@@ -382,14 +463,18 @@ export const appRouter = router({
       }),
     list: adminProcedure.query(async () => {
       const db = await getDb();
-      if (!db) return [];
+      if (!db) return fallbackContacts;
       return db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
     }),
     markRead: adminProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
         const db = await getDb();
-        if (!db) throw new Error("Database unavailable");
+        if (!db) {
+          const item = fallbackContacts.find((x) => x.id === input.id);
+          if (item) item.isRead = true;
+          return { success: true, stored: false };
+        }
         await db.update(contactMessages).set({ isRead: true }).where(eq(contactMessages.id, input.id));
         return { success: true };
       }),
@@ -415,7 +500,7 @@ export const appRouter = router({
       }),
     listAll: adminProcedure.query(async () => {
       const db = await getDb();
-      if (!db) return [];
+      if (!db) return fallbackChildren;
       return db.select().from(children).orderBy(children.firstName);
     }),
     register: protectedProcedure
@@ -468,7 +553,28 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         const db = await getDb();
-        if (!db) throw new Error("Database unavailable");
+        if (!db) {
+          fallbackChildren.push({
+            id: nextFallbackId(),
+            parentId: 0,
+            roomId: input.roomId,
+            firstName: input.firstName,
+            lastName: input.lastName,
+            dateOfBirth: new Date(input.dateOfBirth),
+            gender: input.gender || null,
+            allergies: input.allergies || null,
+            medicalInfo: input.medicalInfo || null,
+            dietaryRequirements: input.dietaryRequirements || null,
+            emergencyContact: input.emergencyContact || null,
+            emergencyPhone: input.emergencyPhone || null,
+            parentEmail: input.parentEmail || null,
+            notes: input.notes || null,
+            status: "active",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
+          return { success: true, stored: false };
+        }
         // Find parent by email if provided
         let parentId = 0;
         if (input.parentEmail) {
@@ -512,7 +618,14 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         const db = await getDb();
-        if (!db) throw new Error("Database unavailable");
+        if (!db) {
+          const child = fallbackChildren.find((x) => x.id === input.id);
+          if (child) {
+            const { id: _id, ...updates } = input;
+            Object.assign(child, updates, { updatedAt: new Date() });
+          }
+          return { success: true, stored: false };
+        }
         const { id, parentEmail, ...updates } = input;
         const setValues: any = {};
         if (updates.firstName) setValues.firstName = updates.firstName;
@@ -539,14 +652,17 @@ export const appRouter = router({
     // Staff: list children in their room
     byRoom: staffProcedure.query(async ({ ctx }) => {
       const db = await getDb();
-      if (!db) return [];
+      if (!db) {
+        if (!ctx.user.roomId) return [];
+        return fallbackChildren.filter((c) => c.roomId === ctx.user.roomId);
+      }
       if (!ctx.user.roomId) return [];
       return db.select().from(children).where(eq(children.roomId, ctx.user.roomId)).orderBy(children.firstName);
     }),
     // Get rooms list (public for dropdowns)
     rooms: publicProcedure.query(async () => {
       const db = await getDb();
-      if (!db) return [];
+      if (!db) return fallbackRooms;
       return db.select().from(rooms).orderBy(rooms.name);
     }),
   }),
@@ -847,12 +963,12 @@ export const appRouter = router({
   staff: router({
     list: publicProcedure.query(async () => {
       const db = await getDb();
-      if (!db) return [];
+      if (!db) return fallbackStaffProfiles.filter((s) => s.isActive);
       return db.select().from(staffProfiles).where(eq(staffProfiles.isActive, true));
     }),
     listAll: adminProcedure.query(async () => {
       const db = await getDb();
-      if (!db) return [];
+      if (!db) return fallbackStaffProfiles;
       return db.select().from(staffProfiles).orderBy(desc(staffProfiles.createdAt));
     }),
     add: adminProcedure
@@ -865,7 +981,20 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         const db = await getDb();
-        if (!db) throw new Error("Database unavailable");
+        if (!db) {
+          fallbackStaffProfiles.unshift({
+            id: nextFallbackId(),
+            userId: 0,
+            title: input.title,
+            bio: input.bio || null,
+            qualifications: input.qualifications || null,
+            roomId: input.roomId || null,
+            startDate: input.startDate ? new Date(input.startDate) : null,
+            isActive: true,
+            createdAt: new Date(),
+          });
+          return { success: true, stored: false };
+        }
         await db.insert(staffProfiles).values({
           userId: 0, // no user account needed for staff profiles
           title: input.title,
@@ -905,7 +1034,11 @@ export const appRouter = router({
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
         const db = await getDb();
-        if (!db) throw new Error("Database unavailable");
+        if (!db) {
+          const item = fallbackStaffProfiles.find((x) => x.id === input.id);
+          if (item) item.isActive = false;
+          return { success: true, stored: false };
+        }
         await db.update(staffProfiles).set({ isActive: false }).where(eq(staffProfiles.id, input.id));
         return { success: true };
       }),
@@ -1574,7 +1707,20 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         const db = await getDb();
-        if (!db) throw new Error("Database unavailable");
+        if (!db) {
+          fallbackEnquiries.unshift({
+            id: nextFallbackId(),
+            name: input.name,
+            email: input.email,
+            phone: input.phone || null,
+            childAge: input.childAge || null,
+            message: input.message || null,
+            status: "new",
+            notes: null,
+            createdAt: new Date(),
+          });
+          return { success: true, stored: false };
+        }
         await db.insert(enquiries).values({
           name: input.name,
           email: input.email,
@@ -1586,14 +1732,21 @@ export const appRouter = router({
       }),
     list: adminProcedure.query(async () => {
       const db = await getDb();
-      if (!db) return [];
+      if (!db) return fallbackEnquiries;
       return db.select().from(enquiries).orderBy(desc(enquiries.createdAt)).limit(100);
     }),
     updateStatus: adminProcedure
       .input(z.object({ id: z.number(), status: z.enum(["new", "contacted", "interested", "registered", "not_interested", "closed"]), notes: z.string().optional() }))
       .mutation(async ({ input }) => {
         const db = await getDb();
-        if (!db) throw new Error("Database unavailable");
+        if (!db) {
+          const item = fallbackEnquiries.find((x) => x.id === input.id);
+          if (item) {
+            item.status = input.status;
+            item.notes = input.notes || null;
+          }
+          return { success: true, stored: false };
+        }
         await db.update(enquiries).set({ status: input.status, notes: input.notes || null }).where(eq(enquiries.id, input.id));
         return { success: true };
       }),

@@ -159,6 +159,7 @@ export default function AdminDashboard() {
   const { data: todayAttendance } = trpc.attendance.todayList.useQuery(undefined, { enabled: isAuthenticated && user?.role === "admin" });
   const { data: staffList } = trpc.staff.list.useQuery(undefined, { enabled: isAuthenticated && user?.role === "admin" });
   const { data: newsList } = trpc.news.list.useQuery(undefined, { enabled: isAuthenticated && user?.role === "admin" });
+  const { data: systemStatus } = trpc.system.status.useQuery();
 
   const updateVisitStatus = trpc.visits.updateStatus.useMutation({ onSuccess: () => { toast.success("Updated!"); utils.visits.list.invalidate(); } });
   const updateWaitingStatus = trpc.waitingList.updateStatus.useMutation({ onSuccess: () => { toast.success("Updated!"); utils.waitingList.list.invalidate(); } });
@@ -233,6 +234,14 @@ export default function AdminDashboard() {
             <Link href="/"><ArrowLeft className="h-4 w-4 mr-1" /> Back to Website</Link>
           </Button>
         </div>
+
+        {systemStatus?.dbAvailable === false && (
+          <Card className="mb-4 border-amber-300 bg-amber-50">
+            <CardContent className="py-3 px-4 text-sm text-amber-900">
+              Local mode active: data is currently stored in temporary memory and may reset on server restart.
+            </CardContent>
+          </Card>
+        )}
 
         <div className="flex items-center justify-between mb-6">
           <h1 className="heading-3">{isAdmin ? "Admin" : "Staff"} Dashboard</h1>

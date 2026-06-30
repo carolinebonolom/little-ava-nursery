@@ -36,10 +36,14 @@ import Unsubscribe from "@/pages/public/Unsubscribe";
 
 // Dashboard pages
 import AdminDashboard from "@/pages/dashboard/AdminDashboard";
+import ParentDashboard from "@/pages/dashboard/ParentDashboard";
+import StaffDashboard from "@/pages/dashboard/StaffDashboard";
 
 // Login pages
 import LoginSelection from "./pages/LoginSelection";
 import LoginAdmin from "./pages/LoginAdmin";
+import LoginParent from "./pages/LoginParent";
+import LoginStaff from "./pages/LoginStaff";
 
 function Router() {
   return (
@@ -74,9 +78,13 @@ function Router() {
       {/* Login pages */}
       <Route path="/login" component={LoginSelection} />
       <Route path="/login/admin" component={LoginAdmin} />
+      <Route path="/login/parent" component={LoginParent} />
+      <Route path="/login/staff" component={LoginStaff} />
 
       {/* Dashboard pages */}
       <Route path="/dashboard/admin" component={AdminDashboard} />
+      <Route path="/dashboard/parent" component={ParentDashboard} />
+      <Route path="/dashboard/staff" component={StaffDashboard} />
 
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

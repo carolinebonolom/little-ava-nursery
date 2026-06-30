@@ -13,7 +13,7 @@ export default function LoginSelection() {
             <p className="text-muted-foreground mt-2">Secure access for nursery management.</p>
           </div>
 
-          <Card>
+          <Card className="mb-4">
             <CardHeader>
               <CardTitle>Admin Dashboard</CardTitle>
               <CardDescription>Use your management credentials to continue.</CardDescription>
@@ -24,6 +24,32 @@ export default function LoginSelection() {
               </Button>
             </CardContent>
           </Card>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Staff Login</CardTitle>
+                <CardDescription>For room staff and daily activity updates.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button asChild variant="outline" size="lg" className="w-full">
+                  <Link href="/login/staff">Go to Staff Login</Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Parent Portal</CardTitle>
+                <CardDescription>For families to view updates and manage requests.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button asChild variant="outline" size="lg" className="w-full">
+                  <Link href="/login/parent">Go to Parent Login</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
     </PublicLayout>

@@ -19,7 +19,7 @@ export default function LoginParent() {
   const parentLogin = trpc.auth.parentLogin.useMutation({
     onSuccess: () => {
       toast.success("Logged in successfully!");
-      window.location.href = "/dashboard/parent";
+      navigate("/dashboard/parent");
     },
     onError: (err: any) => toast.error(err.message || "Login failed"),
   });
