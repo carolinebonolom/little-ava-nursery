@@ -8,18 +8,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
+import { NURSERY_INFO } from "@shared/nurseryInfo";
 import { toast } from "sonner";
 import { CheckCircle2 } from "lucide-react";
 
 export default function WaitingList() {
   const [submitted, setSubmitted] = useState(false);
-  const joinWaitingList = trpc.waitingList.join.useMutation({
-    onSuccess: () => {
-      setSubmitted(true);
-      toast.success("Successfully added to the waiting list!");
-    },
-    onError: (err) => toast.error(err.message),
-  });
+  const joinWaitingList = trpc.waitingList.join.useMutation();
 
   const [form, setForm] = useState({
     parentName: "",
@@ -32,9 +27,48 @@ export default function WaitingList() {
     notes: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const fallbackSubmit = async () => {
+    const response = await fetch(`https://formsubmit.co/ajax/${NURSERY_INFO.email}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        parentName: form.parentName,
+        parentEmail: form.parentEmail,
+        parentPhone: form.parentPhone || "",
+        childName: form.childName,
+        childDob: form.childDob,
+        preferredStartDate: form.preferredStartDate || "",
+        preferredSessions: form.preferredSessions || "",
+        notes: form.notes || "",
+        _subject: `Little Ava Waiting List: ${form.childName}`,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Unable to submit waiting list form right now. Please try again shortly.");
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    joinWaitingList.mutate(form);
+    try {
+      await joinWaitingList.mutateAsync(form);
+      setSubmitted(true);
+      toast.success("Successfully added to the waiting list!");
+      return;
+    } catch {
+      // Fallback for static deployments where API routes are unavailable.
+      try {
+        await fallbackSubmit();
+        setSubmitted(true);
+        toast.success("Successfully added to the waiting list!");
+      } catch (fallbackError: any) {
+        toast.error(fallbackError?.message || "Unable to submit waiting list form right now.");
+      }
+    }
   };
 
   if (submitted) {
