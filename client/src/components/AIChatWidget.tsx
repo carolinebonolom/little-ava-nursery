@@ -10,6 +10,24 @@ interface Message {
   content: string;
 }
 
+function localFallbackReply(rawMessage: string): string {
+  const message = rawMessage.toLowerCase();
+
+  if (message.includes("fee") || message.includes("cost") || message.includes("price")) {
+    return "Our fees are competitive and depend on your child and session choices. Please contact info@littleavanursery.co.uk for a personalised quote.";
+  }
+  if (message.includes("hour") || message.includes("open") || message.includes("time")) {
+    return "We are open Monday to Friday, 6:30 AM to 6:00 PM.";
+  }
+  if (message.includes("visit") || message.includes("tour")) {
+    return "You can use the Book a Visit page to arrange a tour. We would love to show you around.";
+  }
+  if (message.includes("wait") || message.includes("admission") || message.includes("place")) {
+    return "You can join our waiting list from the Waiting List page, and we will contact you about availability.";
+  }
+  return "I can help with admissions, waiting list, visits, rooms, and opening hours. If needed, contact us at info@littleavanursery.co.uk.";
+}
+
 export default function AIChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -40,12 +58,19 @@ export default function AIChatWidget() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: userMessage, history: messages }),
       });
-      const data = await response.json();
-      setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
+      const data = await response.json().catch(() => ({}));
+      const reply = typeof data?.reply === "string" && data.reply.trim() ? data.reply : localFallbackReply(userMessage);
+
+      if (!response.ok) {
+        setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+        return;
+      }
+
+      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "I'm sorry, I'm having trouble connecting right now. Please try again or contact us directly at info@littleavanursery.co.uk." },
+        { role: "assistant", content: localFallbackReply(userMessage) },
       ]);
     } finally {
       setIsLoading(false);

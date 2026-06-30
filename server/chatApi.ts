@@ -1,6 +1,48 @@
 import { Router } from "express";
 import { invokeLLM } from "./_core/llm";
 
+function generateFallbackReply(rawMessage: string): string {
+  const message = rawMessage.toLowerCase();
+
+  if (message.includes("fee") || message.includes("cost") || message.includes("price")) {
+    return "Our fees are competitive and depend on the sessions and age group. Please contact us at info@littleavanursery.co.uk for a personalised quote.";
+  }
+
+  if (message.includes("hour") || message.includes("open") || message.includes("time")) {
+    return "We are open Monday to Friday, 6:30 AM to 6:00 PM. We are closed on weekends and bank holidays.";
+  }
+
+  if (message.includes("age") || message.includes("month") || message.includes("year")) {
+    return "We care for children aged 3 months to 5 years across our Baby, Toddler, Pre-School, and School Readiness rooms.";
+  }
+
+  if (message.includes("room")) {
+    return "We have 4 rooms: Baby Room (3-12 months), Toddler Room (1-2 years), Pre-School Room (2-3 years), and School Readiness Room (3-5 years).";
+  }
+
+  if (message.includes("wait") || message.includes("availability") || message.includes("place") || message.includes("admission")) {
+    return "You can register interest by joining our waiting list on the website. If you would like, I can also guide you to the admissions and waiting list pages.";
+  }
+
+  if (message.includes("visit") || message.includes("tour")) {
+    return "You can book a nursery visit through the Book a Visit page. We would love to show you around and answer your questions.";
+  }
+
+  if (message.includes("contact") || message.includes("email") || message.includes("phone")) {
+    return "You can contact us at info@littleavanursery.co.uk or call +44 7386 096634. You can also send a message using the Contact page.";
+  }
+
+  if (message.includes("meal") || message.includes("food") || message.includes("nutrition")) {
+    return "We provide freshly prepared nutritious meals and support dietary requirements. You can ask us directly if your child has specific needs.";
+  }
+
+  if (message.includes("safe") || message.includes("safeguard") || message.includes("dbs")) {
+    return "Safeguarding is a priority at Little Ava Nursery. Our staff are DBS-checked and we follow comprehensive safeguarding policies.";
+  }
+
+  return "I can help with admissions, waiting list, visits, rooms, opening hours, and general nursery information. You can also contact us directly at info@littleavanursery.co.uk.";
+}
+
 const SYSTEM_PROMPT = `You are the friendly AI assistant for Little Ava Nursery, a childcare nursery located in the West Midlands, England. You help parents and prospective families with information about the nursery.
 
 Key Information:
@@ -71,13 +113,23 @@ export function registerChatRoutes(app: Router) {
 
       messages.push({ role: "user", content: message });
 
-      const response = await invokeLLM({ messages });
-      const reply = response.choices?.[0]?.message?.content || "I'm sorry, I couldn't process that. Please try again.";
+      let reply = "";
+      try {
+        const response = await invokeLLM({ messages });
+        reply = response.choices?.[0]?.message?.content || "";
+      } catch (error) {
+        console.warn("[Chat API] LLM unavailable, using fallback reply:", error);
+      }
+
+      if (!reply || typeof reply !== "string") {
+        reply = generateFallbackReply(message);
+      }
 
       res.json({ reply });
     } catch (error) {
       console.error("[Chat API] Error:", error);
-      res.status(500).json({ reply: "I'm having trouble right now. Please try again later or contact us at info@littleavanursery.co.uk." });
+      const fallbackMessage = typeof req.body?.message === "string" ? req.body.message : "";
+      res.json({ reply: generateFallbackReply(fallbackMessage) });
     }
   });
 }
