@@ -30,7 +30,14 @@ function LogActivityForm({ children: childList, onSuccess }: { children: { id: n
   });
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); logActivity.mutate({ childId: Number(formData.childId), type: formData.type as "meal" | "drink" | "nappy" | "nap" | "activity" | "milestone" | "note", description: formData.description || undefined }); }} className="space-y-4">
+    <form onSubmit={(e) => {
+      e.preventDefault();
+      if (!formData.childId || !formData.type) {
+        toast.error("Please select a child and activity type");
+        return;
+      }
+      logActivity.mutate({ childId: Number(formData.childId), type: formData.type as "meal" | "drink" | "nappy" | "nap" | "activity" | "milestone" | "note", description: formData.description || undefined });
+    }} className="space-y-4">
       <div>
         <Label>Child *</Label>
         <Select value={formData.childId} onValueChange={(v) => setFormData(p => ({ ...p, childId: v }))}>
@@ -190,13 +197,13 @@ export default function AdminDashboard() {
     );
   }
 
-  if (user?.role !== "admin" && user?.role !== "staff") {
+  if (user?.role !== "admin") {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Card className="max-w-md w-full">
           <CardContent className="p-8 text-center">
             <h2 className="heading-3 mb-4">Access Denied</h2>
-            <p className="text-muted-foreground mb-6">You don't have permission to access the staff dashboard.</p>
+            <p className="text-muted-foreground mb-6">You don't have permission to access the admin dashboard.</p>
             <Button asChild><Link href="/">Go Home</Link></Button>
           </CardContent>
         </Card>
@@ -706,7 +713,14 @@ function IncidentsTab() {
       </CardHeader>
       <CardContent>
         {showForm && (
-          <form onSubmit={(e) => { e.preventDefault(); report.mutate({ childId: Number(form.childId), type: form.type as "accident" | "incident" | "near_miss" | "concern", date: form.date, time: form.time || undefined, location: form.location || undefined, description: form.description, actionTaken: form.actionTaken || undefined, injuries: form.injuries || undefined, witnessName: form.witnessName || undefined }); }} className="space-y-3 mb-6 p-4 border rounded-lg bg-muted/30">
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            if (!form.childId || !form.type) {
+              toast.error("Please select a child and incident type");
+              return;
+            }
+            report.mutate({ childId: Number(form.childId), type: form.type as "accident" | "incident" | "near_miss" | "concern", date: form.date, time: form.time || undefined, location: form.location || undefined, description: form.description, actionTaken: form.actionTaken || undefined, injuries: form.injuries || undefined, witnessName: form.witnessName || undefined });
+          }} className="space-y-3 mb-6 p-4 border rounded-lg bg-muted/30">
             <div className="grid sm:grid-cols-3 gap-3">
               <div><Label>Child *</Label><Select value={form.childId} onValueChange={(v) => setForm(p => ({ ...p, childId: v }))}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent>{(childList || []).map(c => <SelectItem key={c.id} value={String(c.id)}>{c.firstName} {c.lastName}</SelectItem>)}</SelectContent></Select></div>
               <div><Label>Type *</Label><Select value={form.type} onValueChange={(v) => setForm(p => ({ ...p, type: v as any }))}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent><SelectItem value="accident">Accident</SelectItem><SelectItem value="incident">Incident</SelectItem><SelectItem value="near_miss">Near Miss</SelectItem><SelectItem value="concern">Concern</SelectItem></SelectContent></Select></div>
@@ -766,7 +780,14 @@ function MedicationTab() {
       </CardHeader>
       <CardContent>
         {showForm && (
-          <form onSubmit={(e) => { e.preventDefault(); addMed.mutate({ childId: Number(form.childId), medicationName: form.medicationName, dosage: form.dosage, frequency: form.frequency || undefined, reason: form.reason || undefined, startDate: form.startDate, parentConsentGiven: form.parentConsentGiven }); }} className="space-y-3 mb-6 p-4 border rounded-lg bg-muted/30">
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            if (!form.childId) {
+              toast.error("Please select a child");
+              return;
+            }
+            addMed.mutate({ childId: Number(form.childId), medicationName: form.medicationName, dosage: form.dosage, frequency: form.frequency || undefined, reason: form.reason || undefined, startDate: form.startDate, parentConsentGiven: form.parentConsentGiven });
+          }} className="space-y-3 mb-6 p-4 border rounded-lg bg-muted/30">
             <div className="grid sm:grid-cols-2 gap-3">
               <div><Label>Child *</Label><Select value={form.childId} onValueChange={(v) => setForm(p => ({ ...p, childId: v }))}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent>{(childList || []).map(c => <SelectItem key={c.id} value={String(c.id)}>{c.firstName} {c.lastName}</SelectItem>)}</SelectContent></Select></div>
               <div><Label>Medication Name *</Label><Input value={form.medicationName} onChange={(e) => setForm(p => ({ ...p, medicationName: e.target.value }))} required /></div>
@@ -1225,7 +1246,14 @@ function MilestonesStaffTab() {
       </CardHeader>
       <CardContent>
         {showForm && (
-          <form onSubmit={(e) => { e.preventDefault(); addMilestone.mutate({ childId: Number(form.childId), area: form.area, milestone: form.milestone, observedDate: form.observedDate, notes: form.notes || undefined }); }} className="space-y-3 mb-6 p-4 border rounded-lg bg-muted/30">
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            if (!form.childId) {
+              toast.error("Please select a child");
+              return;
+            }
+            addMilestone.mutate({ childId: Number(form.childId), area: form.area, milestone: form.milestone, observedDate: form.observedDate, notes: form.notes || undefined });
+          }} className="space-y-3 mb-6 p-4 border rounded-lg bg-muted/30">
             <div className="grid sm:grid-cols-2 gap-3">
               <div><Label>Child *</Label><Select value={form.childId} onValueChange={(v) => setForm(p => ({ ...p, childId: v }))}><SelectTrigger><SelectValue placeholder="Select child" /></SelectTrigger><SelectContent>{(childList || []).map(c => <SelectItem key={c.id} value={String(c.id)}>{c.firstName} {c.lastName}</SelectItem>)}</SelectContent></Select></div>
               <div><Label>EYFS Area *</Label><Select value={form.area} onValueChange={(v) => setForm(p => ({ ...p, area: v }))}><SelectTrigger><SelectValue placeholder="Select area" /></SelectTrigger><SelectContent>{areas.map(a => <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>)}</SelectContent></Select></div>
@@ -1839,7 +1867,7 @@ function ChildrenManagementTab() {
                       {/* Move Room dropdown */}
                       <select
                         className="h-7 rounded border border-input bg-background px-2 text-xs"
-                        value={child.roomId || ""}
+                        value={child.roomId ?? ""}
                         onChange={(e) => handleMoveRoom(child.id, Number(e.target.value))}
                       >
                         <option value="" disabled>Move to...</option>
