@@ -1,0 +1,55 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1781379912194,
+      "tag": "0000_striped_master_mold",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1781380190632,
+      "tag": "0001_clumsy_professor_monster",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1781382535979,
+      "tag": "0002_mysterious_mother_askani",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1781386321671,
+      "tag": "0003_hesitant_layla_miller",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1781391380376,
+      "tag": "0004_thick_doomsday",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1781393590549,
+      "tag": "0005_flippant_cardiac",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1781394081295,
+      "tag": "0006_messy_chamber",
+      "breakpoints": true
+    }
+  ]
+}

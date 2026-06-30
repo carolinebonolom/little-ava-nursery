@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `roomId` int;
